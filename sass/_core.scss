@@ -1,0 +1,21 @@
+@import "variables.scss";
+
+html, body {
+    height: 100%;
+}
+
+body {
+    display: grid;
+    grid-template-rows: $navbar-height auto;
+}
+
+#homepage-content {
+    background: url("../img/durhamcity.jpg") no-repeat center center;
+    background-size: cover;
+
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+}

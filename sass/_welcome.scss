@@ -1,0 +1,38 @@
+@import "variables.scss";
+
+#welcome-banner {
+    background-color: rgba(40, 40, 40, 0.8);
+    flex-grow: 1;
+    height: 160px;
+    text-align: center;
+}
+
+#welcome-message {
+    font: bold 70px 'Poppins';
+    color: white;
+    margin-bottom: 0;
+}
+
+#welcome-button {
+    background-color: $palantine !important;
+    text-align: center;
+    color: white;
+    font: 28px 'Poppins';
+    margin-top: -10px;
+}
+
+@media (max-width: 950px) {
+    #welcome-banner {
+        height: 100px;
+    }
+
+    #welcome-message {
+        font-size: 36px;
+    }
+
+    #welcome-button {
+        margin-top: 0px;
+        font-size: 18px;
+        height: 36px;
+    }
+}
