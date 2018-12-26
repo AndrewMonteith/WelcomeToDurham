@@ -10,24 +10,108 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg">
-        <a class="navbar-brand" href="#">Durham Events</a>
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="#">Welcome To Durham</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Events On</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="modal" data-target="#modalLoginForm" href="#">Log In</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="modal" data-target="#registerModalForm" href="#">Register</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </nav>
+
     <section id="homepage-content">
         <section id="welcome-banner">
             <p id="welcome-message">Welcome to Durham</p>
-            <button class="btn btn-default" id="welcome-button">Begin your adventure</button>
+            <button class="btn" id="welcome-button">Begin your adventure</button>
         </section>
     </section>
 
+    <!-- Modal Login Dialog -->
+    <div class="modal fade" id="modalLoginForm" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h4 class="modal-title">Log in</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
 
-    <!-- Bootstrap Imports -->
+                <div class="modal-body mx-1">
+                    <div class="md-form mb-2">
+                        <label data-error="wrong" data-success="right" for="form-group">Username</label>
+                        <input type="text" class="form-control modal-username" id="login-username">
+                    </div>
+
+                    <div class="md-form mt-3">
+                        <label data-error="wrong" data-success="right" for="form-group">Password</label>
+                        <input type="password" class="form-control modal-password" id="login-password">
+                    </div>
+                </div>
+
+                <div class="modal-footer d-flex justify-content-center">
+                    <button class="btn modal-confirm" id="login-button">Login</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register User Dialog -->
+    <div class="modal fade" id="registerModalForm" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h4 class="modal-title">Register</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body mx-1">
+                    <div class="md-form mb-2">
+                        <label data-error="wrong" data-success="right" for="form-group">Username</label>
+                        <input type="text" class="form-control modal-username" id="register-username">
+                    </div>
+
+                    <div class="md-form mt-3">
+                        <label data-error="wrong" data-success="right" for="form-group">Password</label>
+                        <input type="password" class="form-control modal-password" id="register-password">
+                    </div>
+
+                    <div class="md-form mt-3">
+                        <label data-error="wrong" data-success="right" for="form-group">Confirm Password</label>
+                        <input type="password" class="form-control modal-password" id="register-confirm-password">
+                    </div>
+                </div>
+
+                <div class="modal-footer d-flex justify-content-center">
+                    <button class="btn modal-confirm" id="register-button">Register</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
         crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
         crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
         crossorigin="anonymous"></script>
+    <script src="js/dialogs.js"></script>
 </body>
 
 </html>

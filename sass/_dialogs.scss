@@ -1,0 +1,29 @@
+.modal-title {
+    text-align: center;
+    width: 100%;
+    font: 26px 'Poppins';
+}
+
+label {
+    font: 20px 'Poppins';
+    margin-bottom: 3px;
+}
+
+.modal-username {
+    font: 18px 'Poppins';
+}
+
+.modal-password {
+    font-size: 25px;
+}
+
+.modal-confirm {
+    @include durham-button;
+
+    font-size: 18px;
+    min-width: 150px;
+}
+
+.modal-confirm:hover {
+    color: white;
+}

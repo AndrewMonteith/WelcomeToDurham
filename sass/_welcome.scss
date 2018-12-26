@@ -14,10 +14,9 @@
 }
 
 #welcome-button {
-    background-color: $palantine !important;
-    text-align: center;
-    color: white;
-    font: 28px 'Poppins';
+    @include durham-button;
+    
+    font-size: 28px;
     margin-top: -10px;
 }
 

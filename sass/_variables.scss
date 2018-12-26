@@ -1,3 +1,10 @@
 @import url('https://fonts.googleapis.com/css?family=Poppins');
 $palantine: #7E317B;
 $navbar-height: 70px;
+
+@mixin durham-button {
+    background-color: $palantine !important;
+    text-align: center;
+    color: white;
+    font-family: 'Poppins';
+}

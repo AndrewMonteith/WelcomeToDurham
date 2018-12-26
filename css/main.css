@@ -16,15 +16,24 @@ body {
   display: flex;
   align-items: center; }
 
-nav {
+nav, .nav-item {
   background-color: #7E317B; }
 
-nav > a {
-  color: white;
-  font-size: 30px !important; }
+.navbar > .container {
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 15px;
+  padding-right: 15px;
+  min-width: 100%; }
 
-nav > a:hover {
-  color: #f0f0f0; }
+.navbar-brand {
+  font: 24px 'Poppins'; }
+
+.nav-link {
+  font: 18px 'Poppins';
+  color: #e6e6e6 !important;
+  text-align: center;
+  margin-right: 6px !important; }
 
 #welcome-banner {
   background-color: rgba(40, 40, 40, 0.8);
@@ -41,7 +50,8 @@ nav > a:hover {
   background-color: #7E317B !important;
   text-align: center;
   color: white;
-  font: 28px 'Poppins';
+  font-family: 'Poppins';
+  font-size: 28px;
   margin-top: -10px; }
 
 @media (max-width: 950px) {
@@ -55,5 +65,33 @@ nav > a:hover {
     margin-top: 0px;
     font-size: 18px;
     height: 36px; } }
+.modal-title {
+  text-align: center;
+  width: 100%;
+  font: 26px 'Poppins'; }
+
+label {
+  font: 20px 'Poppins';
+  margin-bottom: 3px; }
+
+.modal-username {
+  font: 18px 'Poppins'; }
+
+.modal-password {
+  font-size: 25px; }
+
+.modal-confirm {
+  background-color: #7E317B !important;
+  text-align: center;
+  color: white;
+  font-family: 'Poppins';
+  font-size: 18px;
+  min-width: 150px; }
+
+.modal-confirm:hover {
+  color: white; }
+
+a {
+  outline: 0 !important; }
 
 /*# sourceMappingURL=main.css.map */
