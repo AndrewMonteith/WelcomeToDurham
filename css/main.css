@@ -1,0 +1,18 @@
+html, body {
+  height: 100%; }
+
+body {
+  display: grid;
+  grid-template-rows: 56px auto; }
+
+nav {
+  background-color: #7E317B; }
+
+nav > a {
+  color: white; }
+
+main {
+  background: url("../img/durhamcity.jpg") no-repeat center center;
+  background-size: cover; }
+
+/*# sourceMappingURL=main.css.map */

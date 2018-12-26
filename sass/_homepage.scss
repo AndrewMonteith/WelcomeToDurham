@@ -1,0 +1,21 @@
+html, body {
+    height: 100%;
+}
+
+body {
+    display: grid;
+    grid-template-rows: 56px auto;
+}
+
+nav {
+    background-color: $palantine;
+}
+
+nav > a {
+    color: white;
+}
+
+main {
+    background: url("../img/durhamcity.jpg") no-repeat center center;
+    background-size: cover;
+}
