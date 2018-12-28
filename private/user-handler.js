@@ -45,7 +45,7 @@ function loginUser(username, response) {
 
     response.status(200);
     response.type("json");
-    response.send({Token: sessionToken});
+    response.json({Token: sessionToken});
 }
 
 function reportFailedAttempt(response) {
@@ -64,9 +64,9 @@ function makeLoginRequest(request, response) {
         return;
     }
 
-    const queryUsername = request.query.username;
+    const queryUsername = request.body.username;
 
-    if (passwordIsCorrect(queryUsername, request.query.password)) {
+    if (passwordIsCorrect(queryUsername, request.body.password)) {
         loginUser(queryUsername, response);
     } else {
         reportFailedAttempt(response);
@@ -79,7 +79,7 @@ function logoutUserRequest(request, response) {
         return;
     }
 
-    sessionTokens[request.query.session] = undefined;
+    sessionTokens[request.body.session] = undefined;
     utils.SendMessage(response, "success");
 }
 
@@ -94,7 +94,7 @@ function checkUsernameExists(request, response) {
 }
 
 exports.ListenOnRoutes = expressApp => {
-    expressApp.get("/login", makeLoginRequest);
-    expressApp.get("/logout", logoutUserRequest);
+    expressApp.post("/login", makeLoginRequest);
+    expressApp.post("/logout", logoutUserRequest);
     expressApp.get("/usernameExists", checkUsernameExists);
 };

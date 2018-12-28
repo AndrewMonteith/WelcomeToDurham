@@ -2,27 +2,27 @@
 
 const isEmpty = str => str.trim().length === 0;
 
-function invalidQueryParameter(response, query, type) {
+function invalidQueryParameter(response, value, type) {
     response.status(400);
     response.type('json');
 
     response.json({
         Error: "Invalid query string parameter",
-        Description: `Expected ${type} for parameter ${query}`
+        Description: `Expected ${type} for parameter ${value}`
     });
 }
 exports.SendInvalidParameterResponse = invalidQueryParameter;
 
 
 function invalidStringParameter(request, param) {
-    const query = request.query[param];
-
-    return (typeof (query) !== "string") || isEmpty(query);
+    const value = (request.query[param] || request.body[param]);
+    
+    return (typeof (value) !== "string") || isEmpty(value);
 }
 exports.InvalidStringParameter = invalidStringParameter;
 
 function sendMessage(response, message) {
     response.type("json");
-    response.send({Message: message});
+    response.json({Message: message});
 }
 exports.SendMessage = sendMessage;

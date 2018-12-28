@@ -14,7 +14,7 @@ function bindInputInvalidityVisuals(input, errorMsg) {
             input.removeClass("is-invalid");
             errorDialog.remove();
         }
-    }
+    };
 }
 
 function watchUsernameInput(input) {
@@ -27,14 +27,27 @@ function watchUsernameInput(input) {
 
     input.blur(onValueChanged);
 }
-
 $('.modal-username').each((_, input) => watchUsernameInput($(input)));
 
-function makeLoginRequest() {
-    const username = get("login-username"),
-        password = get("login-password");
+const loginRequest = createErrorDialog("Username or password was incorrect");
+function loginRequestSucceeded(data) {
+    loginRequest.remove();
 
-    console.log(username + " " + password);
+}
+
+function loginRequestFailed(a, b, c) {
+    loginRequest.insertAfter($("#login-button-contanier"));
+}
+
+function makeLoginRequest() {
+    $.post(
+        "http://localhost:8081/login",
+        {
+            username: $("#login-username").val(),
+            password: $("#login-password").val()
+        })
+     .done(loginRequestSucceeded)
+     .fail(loginRequestFailed);
 }
 
 $("#login-button").click(makeLoginRequest);
