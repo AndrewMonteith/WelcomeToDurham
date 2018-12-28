@@ -40,7 +40,7 @@ function passwordIsCorrect(username, password) {
 }
 
 function loginUser(username, response) {
-    const sessionToken = crypto.randomBytes(256).toString("hex");
+    const sessionToken = crypto.randomBytes(64).toString("hex");
     sessionTokens[username] = sessionToken;
 
     response.status(200);
