@@ -6,10 +6,10 @@ html, body {
 
 body {
     display: grid;
-    grid-template-rows: $navbar-height auto;
+    grid-template-rows: $navbar-height calc(100vh - #{$navbar-height});
 }
 
-#homepage-content {
+#main-content {
     background: url("../img/durhamcity.jpg") no-repeat center center;
     background-size: cover;
 
@@ -18,4 +18,8 @@ body {
 
     display: flex;
     align-items: center;
+}
+
+a {
+    outline: 0 !important;
 }

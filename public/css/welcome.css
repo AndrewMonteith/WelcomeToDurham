@@ -1,0 +1,33 @@
+@import url("https://fonts.googleapis.com/css?family=Poppins");
+#welcome-banner {
+  background-color: rgba(40, 40, 40, 0.8);
+  flex-grow: 1;
+  height: 160px;
+  text-align: center; }
+
+#welcome-message {
+  font: bold 70px 'Poppins';
+  color: white;
+  margin-bottom: 0; }
+
+#welcome-button {
+  background-color: #7E317B !important;
+  text-align: center;
+  color: white;
+  font-family: 'Poppins';
+  font-size: 28px;
+  margin-top: -10px; }
+
+@media (max-width: 950px) {
+  #welcome-banner {
+    height: 100px; }
+
+  #welcome-message {
+    font-size: 36px; }
+
+  #welcome-button {
+    margin-top: 0px;
+    font-size: 18px;
+    height: 36px; } }
+
+/*# sourceMappingURL=welcome.css.map */

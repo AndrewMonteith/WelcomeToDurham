@@ -1,20 +1,22 @@
 @import url("https://fonts.googleapis.com/css?family=Poppins");
 @import url("https://fonts.googleapis.com/css?family=Poppins");
-@import url("https://fonts.googleapis.com/css?family=Poppins");
 html, body {
   height: 100%; }
 
 body {
   display: grid;
-  grid-template-rows: 70px auto; }
+  grid-template-rows: 70px calc(100vh - 70px); }
 
-#homepage-content {
+#main-content {
   background: url("../img/durhamcity.jpg") no-repeat center center;
   background-size: cover;
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center; }
+
+a {
+  outline: 0 !important; }
 
 nav, .nav-item {
   background-color: #7E317B; }
@@ -35,36 +37,6 @@ nav, .nav-item {
   text-align: center;
   margin-right: 6px !important; }
 
-#welcome-banner {
-  background-color: rgba(40, 40, 40, 0.8);
-  flex-grow: 1;
-  height: 160px;
-  text-align: center; }
-
-#welcome-message {
-  font: bold 70px 'Poppins';
-  color: white;
-  margin-bottom: 0; }
-
-#welcome-button {
-  background-color: #7E317B !important;
-  text-align: center;
-  color: white;
-  font-family: 'Poppins';
-  font-size: 28px;
-  margin-top: -10px; }
-
-@media (max-width: 950px) {
-  #welcome-banner {
-    height: 100px; }
-
-  #welcome-message {
-    font-size: 36px; }
-
-  #welcome-button {
-    margin-top: 0px;
-    font-size: 18px;
-    height: 36px; } }
 .modal-title {
   text-align: center;
   width: 100%;
@@ -91,7 +63,4 @@ label {
 .modal-confirm:hover {
   color: white; }
 
-a {
-  outline: 0 !important; }
-
-/*# sourceMappingURL=main.css.map */
+/*# sourceMappingURL=root.css.map */

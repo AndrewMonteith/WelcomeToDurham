@@ -1,0 +1,42 @@
+@import url("https://fonts.googleapis.com/css?family=Poppins");
+#form-container {
+  background-color: rgba(230, 230, 230, 0.45);
+  height: 100%;
+  display: grid;
+  grid-template-rows: 72px auto; }
+
+form {
+  background-color: rgba(240, 240, 240, 0.9); }
+
+#title {
+  width: 100%;
+  background-color: rgba(240, 240, 240, 0.9);
+  font: bold 50px 'Poppins';
+  text-align: center;
+  margin: 0;
+  padding-top: 5px;
+  max-height: 72px; }
+
+#new-event-form {
+  overflow-y: scroll !important; }
+
+.form-group {
+  width: calc(100% - 16px); }
+
+.form-label {
+  font: 1.4rem 'Poppins'; }
+
+.form-control {
+  font: 1.35rem 'Poppins';
+  width: 100%;
+  resize: none; }
+
+#event-create-button {
+  font-size: 32px;
+  width: 250px; }
+
+@media (min-width: 975px) {
+  #form-container {
+    max-width: 900px; } }
+
+/*# sourceMappingURL=newevent.css.map */

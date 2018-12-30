@@ -212,8 +212,6 @@ function sendRegisterRequest() {
 }
 $("#register-dialog-button").click(sendRegisterRequest);
 
-
-
 // ----------------------- Login Dialog Handler
 
 const loginRequestErrorDialog = createErrorDialog("Username or password was incorrect");
