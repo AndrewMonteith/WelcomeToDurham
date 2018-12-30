@@ -1,6 +1,6 @@
 import { SetSessionCookie, ClearSessionCookie, GetSessionCookie, HasSessionCookie } from "./session.js";
 
-// ------------------------------ Error Dialog Code 
+// ------------------------------ Error Dialog 
 
 const createErrorDialog = msg => $("<div />", {
     "class": "alert alert-danger",
@@ -33,7 +33,7 @@ function watchUsernameInput(input) {
 }
 $('.modal-username').each((_, input) => watchUsernameInput($(input)));
 
-// ---------------------- Navbar Buttons  Changing
+// ---------------------- Navbar Button Changing
 
 const navbarLoginButton = $("#navbar-login"), navbarRegisterButton = $("#navbar-register");
 
@@ -98,13 +98,9 @@ function makeLoginRequest() {
 
 $("#login-button").click(makeLoginRequest);
 
-// -------------------- Navbar button handler
+// -------------------- Logout Button
 
-function navbarLogoutButtonClicked() {
-    if (!HasSessionCookie()) { return; }
-
-    changeNavbarButtons(false);
-
+function MakeLogoutRequest() {
     const sessionCookie = GetSessionCookie();
     ClearSessionCookie();
 
@@ -114,4 +110,38 @@ function navbarLogoutButtonClicked() {
     );
 }
 
+function navbarLogoutButtonClicked() {
+    if (!HasSessionCookie()) { return; }
+
+    MakeLogoutRequest();
+    changeNavbarButtons(false);
+}
+
 navbarLogoutButton.click(navbarLogoutButtonClicked);
+
+// ------------------------ Check Login
+
+
+
+function CheckLogin() {
+    if (!HasSessionCookie()) { return; }
+
+    // Temporarily remove them until we work out whether to readd them.
+    navbarLoginButton.detach();
+    navbarRegisterButton.detach();
+
+    const sessionCookie = GetSessionCookie();
+    const response = $.get(
+        "http://localhost:8081/amILoggedIn",
+        `session=${sessionCookie}`,
+        isLoggedIn => {
+            changeNavbarButtons(isLoggedIn);
+
+            if (!isLoggedIn) {
+                ClearSessionCookie();
+            }
+        }
+    );
+}
+
+CheckLogin();

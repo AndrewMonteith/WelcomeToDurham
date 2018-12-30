@@ -49,8 +49,7 @@ function loginUser(response, username) {
 }
 
 function reportFailedAttempt(response) {
-    response.status(400);
-    utils.SendMessage(response, "Username or password was incorect");
+    utils.SendMessage(response, 400, "Username or password was incorect");
 }
 
 function makeLoginRequest(request, response) {
@@ -80,7 +79,7 @@ function logoutUserRequest(request, response) {
     }
     
     sessionTokens[request.body.session] = undefined;
-    utils.SendMessage(response, "success");
+    utils.SendMessage(response, 200, "success");
 }
 
 function checkUsernameExists(request, response) {
@@ -90,11 +89,22 @@ function checkUsernameExists(request, response) {
     }
 
     const exists = pmdb.Find("users", request.query.username) !== undefined;
-    utils.SendMessage(response, exists);
+    utils.SendMessage(response, 200, exists);
+}
+
+function checkSessionCookie(request, response) {
+    if (utils.InvalidStringParameter(request, "session")) {
+        utils.SendInvalidParameterResponse(response, "session", "string");
+        return;
+    }
+
+    const hasSessionToken = request.query.session !== undefined;
+    utils.SendMessage(response, 200, hasSessionToken);
 }
 
 exports.ListenOnRoutes = expressApp => {
     expressApp.post("/login", makeLoginRequest);
     expressApp.post("/logout", logoutUserRequest);
+    expressApp.get("/amILoggedIn", checkSessionCookie);
     expressApp.get("/usernameExists", checkUsernameExists);
 };

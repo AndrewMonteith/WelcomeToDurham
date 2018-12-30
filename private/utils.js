@@ -21,7 +21,8 @@ function invalidStringParameter(request, param) {
 }
 exports.InvalidStringParameter = invalidStringParameter;
 
-function sendMessage(response, message) {
+function sendMessage(response, code, message) {
+    response.status(code);
     response.type("json");
     response.json({Message: message});
 }
