@@ -17,7 +17,7 @@ function registerUser(username, password) {
 
     const salt = crypto.randomBytes(512);
     const hash = sha512.hmac(salt, password);
-    
+
     pmdb.Set("users", username, {
         password: {
             hash: hash,
@@ -45,21 +45,21 @@ function loginUser(response, username) {
 
     response.status(200);
     response.type("json");
-    response.json({Token: sessionToken});
+    response.json({ Token: sessionToken });
 }
 
 function reportFailedAttempt(response) {
     utils.SendMessage(response, 400, "Username or password was incorect");
 }
 
-function makeLoginRequest(request, response) {
+function loginUserRequest(request, response) {
     if (utils.InvalidStringParameter(request, "username")) {
-        utils.SendInvalidParameterResponse(response, "username", "string"); 
+        utils.invalidQueryParamterType(response, "username", "string");
         return;
     }
 
     if (utils.InvalidStringParameter(request, "password")) {
-        utils.SendInvalidParameterResponse(response, "password", "string");
+        utils.invalidQueryParamterType(response, "password", "string");
         return;
     }
 
@@ -74,27 +74,95 @@ function makeLoginRequest(request, response) {
 
 function logoutUserRequest(request, response) {
     if (utils.InvalidStringParameter(request, "session")) {
-        utils.SendInvalidParameterResponse(response, "session", "string");
+        utils.invalidQueryParamterType(response, "session", "string");
         return;
     }
-    
+
     sessionTokens[request.body.session] = undefined;
     utils.SendMessage(response, 200, "success");
 }
 
-function checkUsernameExists(request, response) {
+const isWhitespaceOrEmpty = s => s.trim() === "";
+
+function isValidUsername(username) {
+    if (username.match(/[^a-zA-Z_0-9]/) !== null) {
+        return false;
+    }
+
+    if (username.length < 3) {
+        return false;
+    }
+
+    if (doesUsernameExist(username)) {
+        return false;
+    }
+
+    return true;
+}
+
+function isValidPassword(password) {
+    /*
+        - Must contain at least 1:
+            - Capital Letter
+            - Number
+            - Punctuation
+        - Be at least 8 letters long.
+    */
+    if (isWhitespaceOrEmpty(password)) {
+        return false;
+    }
+
+    if (password.length < 8) {
+        return false;
+    }
+
+    const uppercase = /[A-Z]/, lowercase = /[a-z]/, punctuation = /[^a-zA-Z0-9]/;
+    return password.match(uppercase) && password.match(lowercase) && password.match(punctuation);
+}
+
+function registerUserRequest(request, response) {
     if (utils.InvalidStringParameter(request, "username")) {
-        utils.SendInvalidParameterResponse(response, "username", "string");
+        utils.invalidQueryParamterType(response, "username", "string");
         return;
     }
 
-    const exists = pmdb.Find("users", request.query.username) !== undefined;
-    utils.SendMessage(response, 200, exists);
+    const username = request.body.username;
+    if (!isValidUsername(username)) {
+        utils.SendMessage(response, 400, "Bad username");
+        return;
+    }
+
+    if (utils.InvalidStringParameter(request, "password")) {
+        utils.invalidQueryParamterType(response, "password", "string");
+        return;
+    }
+
+    const password = request.body.password;
+    if (!isValidPassword(password)) {
+        utils.SendMessage(response, 400, "Bad Password");
+        return;
+    }
+
+    registerUser(username, password);
+    loginUser(response, username);
+}
+
+function doesUsernameExist(username) {
+    return pmdb.Find("users", username) !== undefined;
+}
+
+function checkUsernameExists(request, response) {
+    if (utils.InvalidStringParameter(request, "username")) {
+        utils.InvalidQueryParamterType(response, "username", "string");
+        return;
+    }
+
+    utils.SendMessage(response, 200, doesUsernameExist(request.query.username));
 }
 
 function checkSessionCookie(request, response) {
     if (utils.InvalidStringParameter(request, "session")) {
-        utils.SendInvalidParameterResponse(response, "session", "string");
+        utils.invalidQueryParamterType(response, "session", "string");
         return;
     }
 
@@ -103,8 +171,9 @@ function checkSessionCookie(request, response) {
 }
 
 exports.ListenOnRoutes = expressApp => {
-    expressApp.post("/login", makeLoginRequest);
+    expressApp.post("/login", loginUserRequest);
     expressApp.post("/logout", logoutUserRequest);
+    expressApp.post("/register", registerUserRequest);
     expressApp.get("/amILoggedIn", checkSessionCookie);
     expressApp.get("/usernameExists", checkUsernameExists);
 };

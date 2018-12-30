@@ -1,30 +1,41 @@
 import { SetSessionCookie, ClearSessionCookie, GetSessionCookie, HasSessionCookie } from "./session.js";
 
+const isWhitespaceOrEmpty = s => s.trim() === "";
+
 // ------------------------------ Error Dialog 
 
-const createErrorDialog = msg => $("<div />", {
-    "class": "alert alert-danger",
-    text: msg
-});
+function createErrorDialog(input, msg) {
+    const errorDialogNode = $("<div />", {
+        "class": "alert alert-danger",
+        text: msg
+    });
+
+    return display => {
+        if (display) {
+            errorDialogNode.insertAfter(input);
+        } else {
+            errorDialogNode.detach();
+        }
+    };
+}
 
 function bindInputInvalidityVisuals(input, errorMsg) {
-    const errorDialog = createErrorDialog(errorMsg);
+    const showErrorDialog = createErrorDialog(input, errorMsg);
 
     return isInvalid => {
+        showErrorDialog(isInvalid);
         if (isInvalid) {
             input.addClass("is-invalid");
-            errorDialog.insertAfter(input);
         } else {
             input.removeClass("is-invalid");
-            errorDialog.detach();
         }
     };
 }
 
 function watchUsernameInput(input) {
     const makeInputAppearInvalid = bindInputInvalidityVisuals(input, "Username cannot be empty");
-    let onValueChanged = event => {
-        const isEmpty = $.trim(input.val()).length === 0;
+    let onValueChanged = () => {
+        const isEmpty = isWhitespaceOrEmpty(input.val());
 
         makeInputAppearInvalid(isEmpty);
     };
@@ -67,13 +78,147 @@ function changeNavbarButtons(isLoggedIn) {
     }
 }
 
+// ----------------------- Register Dialog Handler
+const registerUsernameInput = $("#register-username");
+const registerPasswordInput = $("#register-password");
+const registerConfirmPasswordInput = $("#register-confirm-password");
+
+const usernameIsInvalidDialog = createErrorDialog(registerUsernameInput,
+    "Username must be only letters, numbers and underscores. Must be longer than 3 letters.");
+const usernameTakenDialog = createErrorDialog(registerUsernameInput,
+    "Username already taken");
+const passwordNotValidDialog = createErrorDialog(registerPasswordInput,
+    "Password must contain a capital letter, number and punctuation and be at least 8 characters");
+const passwordNotMatching = createErrorDialog(registerConfirmPasswordInput,
+    "Passwords must be the same");
+
+let isUsernameTaken = false; 
+
+function isValidUsername(username) {
+    if (isWhitespaceOrEmpty(username)) {
+        return false;
+    }
+
+    if (username.match(/[^a-zA-Z0-9_]/) !== null) {
+        return false;
+    }
+
+    if (username.length < 3) {
+        return false;
+    }
+
+    return true;
+}
+
+function checkInputUsernameIsntTaken() {
+    const inputUsername = registerUsernameInput.val();
+
+    $.get(
+        "http://localhost:8081/usernameExists/",
+        `username=${inputUsername}`,
+        response => {
+            isUsernameTaken = response.Message;
+            usernameTakenDialog(isUsernameTaken);
+        });
+}
+
+function usernameInputValueChanged() {
+    const username = registerUsernameInput.val();
+    
+    usernameTakenDialog(false); 
+    
+    if (isWhitespaceOrEmpty(username)) {
+        usernameIsInvalidDialog(false);
+        return;
+    }
+
+    const isValid = isValidUsername(username);
+    usernameIsInvalidDialog(!isValid);
+}
+registerUsernameInput.on('input propertychange paste', usernameInputValueChanged);
+registerUsernameInput.focusout(checkInputUsernameIsntTaken);
+
+function isValidPassword(password) {
+    /*
+        - Must contain at least 1:
+            - Capital Letter
+            - Number
+            - Punctuation
+        - Be at least 8 letters long.
+    */
+    if (isWhitespaceOrEmpty(password)) {
+        return false;
+    }
+
+    if (password.length < 8) {
+        return false;
+    }
+
+    const uppercase = /[A-Z]/, lowercase = /[a-z]/, punctuation = /[^a-zA-Z0-9]/;
+    return password.match(uppercase) && password.match(lowercase) && password.match(punctuation);
+}
+
+function doInputPasswordsMatch() {
+    return registerConfirmPasswordInput.val() === registerPasswordInput.val();
+}
+
+function updateConfirmPasswordInput(isPasswordValid) {
+    if (!isPasswordValid) {
+        passwordNotMatching(false); 
+        return;
+    }
+
+    const matching = doInputPasswordsMatch();
+    passwordNotMatching(!matching);
+}
+
+function passwordInputChanged() {
+    const passwordInput = registerPasswordInput.val();
+    if (isWhitespaceOrEmpty(passwordInput)) {
+        passwordNotValidDialog(false);
+        return;
+    }
+
+    const isPasswordValid = isValidPassword(passwordInput);
+    passwordNotValidDialog(!isPasswordValid);
+    updateConfirmPasswordInput(isPasswordValid);
+}
+
+registerPasswordInput.on('input propertychange paste', passwordInputChanged);
+registerConfirmPasswordInput.on('input propertychange paste', passwordInputChanged);
+
+function sendRegisterRequest() {
+    const username = registerUsernameInput.val();
+    if (!isValidUsername(username)) {
+        return;
+    }
+
+    const password = registerPasswordInput.val();
+    if (!isValidPassword(password)) {
+        return;
+    }
+
+    if (!doInputPasswordsMatch()) {
+        return;
+    }
+
+    $.post("http://localhost:8081/register",
+        {username: username, password: password})
+        .done(data => {
+            $("#close-register-dialog").trigger("click");
+            loginRequestSucceeded(data); // "Register Succeeded."
+        }) 
+        .fail(console.log);
+}
+$("#register-dialog-button").click(sendRegisterRequest);
+
+
+
 // ----------------------- Login Dialog Handler
 
 const loginRequestErrorDialog = createErrorDialog("Username or password was incorrect");
 
-$("#close-login-dialog").click(() => {
-    loginRequestErrorDialog.detach();
-});
+$("#close-login-dialog").click(() => loginRequestErrorDialog(false));
 
 function loginRequestSucceeded(data) {
     $("#close-login-dialog").trigger("click");
@@ -131,12 +276,14 @@ function CheckLogin() {
     navbarRegisterButton.detach();
 
     const sessionCookie = GetSessionCookie();
-    const response = $.get(
+
+    $.get(
         "http://localhost:8081/amILoggedIn",
         `session=${sessionCookie}`,
-        isLoggedIn => {
-            changeNavbarButtons(isLoggedIn);
+        data => {
+            const isLoggedIn = data.Message;
 
+            changeNavbarButtons(isLoggedIn);
             if (!isLoggedIn) {
                 ClearSessionCookie();
             }

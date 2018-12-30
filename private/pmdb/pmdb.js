@@ -38,7 +38,8 @@ function Exists(name, query) {
 exports.Exists = Exists;
 
 function Write(name) {
-    const lockName = `./private/pmbd/${name}.lock`;
+    const lockName = `./private/pmdb/${name}.lock`;
+    
     const errorCallback = err => {
         if (err) {
             console.log(`Something went wrong when writing ${name}, ${err}`)
