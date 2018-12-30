@@ -1,3 +1,5 @@
+import { SetSessionCookie, ClearSessionCookie, GetSessionCookie, HasSessionCookie } from "./session.js";
+
 // ------------------------------ Error Dialog Code 
 
 const createErrorDialog = msg => $("<div />", {
@@ -7,14 +9,14 @@ const createErrorDialog = msg => $("<div />", {
 
 function bindInputInvalidityVisuals(input, errorMsg) {
     const errorDialog = createErrorDialog(errorMsg);
-    
+
     return isInvalid => {
         if (isInvalid) {
             input.addClass("is-invalid");
             errorDialog.insertAfter(input);
         } else {
             input.removeClass("is-invalid");
-            errorDialog.remove();
+            errorDialog.detach();
         }
     };
 }
@@ -23,10 +25,10 @@ function watchUsernameInput(input) {
     const makeInputAppearInvalid = bindInputInvalidityVisuals(input, "Username cannot be empty");
     let onValueChanged = event => {
         const isEmpty = $.trim(input.val()).length === 0;
-        
+
         makeInputAppearInvalid(isEmpty);
     };
-    
+
     input.blur(onValueChanged);
 }
 $('.modal-username').each((_, input) => watchUsernameInput($(input)));
@@ -51,15 +53,15 @@ const navbarLogoutButton = createNavbarButton("navbar-logout-button", "Logout");
 
 function changeNavbarButtons(isLoggedIn) {
     if (isLoggedIn) {
-        navbarLoginButton.remove();
-        navbarRegisterButton.remove();
+        navbarLoginButton.detach();
+        navbarRegisterButton.detach();
         navbarMyEvents.insertAfter($("#navbar-events-on"));
         navbarMakeEvent.insertAfter(navbarMyEvents);
         navbarLogoutButton.insertAfter(navbarMakeEvent);
     } else {
-        navbarMakeEvent.remove();
-        navbarMakeEvent.remove();
-        navbarLogoutButton.remove();
+        navbarMyEvents.detach();
+        navbarMakeEvent.detach();
+        navbarLogoutButton.detach();
         navbarLoginButton.insertAfter($("#navbar-events-on"));
         navbarRegisterButton.insertAfter(navbarLoginButton);
     }
@@ -69,14 +71,18 @@ function changeNavbarButtons(isLoggedIn) {
 
 const loginRequestErrorDialog = createErrorDialog("Username or password was incorrect");
 
+$("#close-login-dialog").click(() => {
+    loginRequestErrorDialog.detach();
+});
+
 function loginRequestSucceeded(data) {
     $("#close-login-dialog").trigger("click");
     changeNavbarButtons(true);
-    console.log(data);
+    SetSessionCookie(data.Token);
 }
 
-function loginRequestFailed(a, b, c) {
-    loginRequest.insertAfter($("#login-button-contanier"));
+function loginRequestFailed() {
+    loginRequestErrorDialog.insertAfter($("#login-button-contanier"));
 }
 
 function makeLoginRequest() {
@@ -86,8 +92,8 @@ function makeLoginRequest() {
             username: $("#login-username").val(),
             password: $("#login-password").val()
         })
-     .done(loginRequestSucceeded)
-     .fail(loginRequestFailed);
+        .done(loginRequestSucceeded)
+        .fail(loginRequestFailed);
 }
 
 $("#login-button").click(makeLoginRequest);
@@ -95,7 +101,17 @@ $("#login-button").click(makeLoginRequest);
 // -------------------- Navbar button handler
 
 function navbarLogoutButtonClicked() {
-    
+    if (!HasSessionCookie()) { return; }
+
+    changeNavbarButtons(false);
+
+    const sessionCookie = GetSessionCookie();
+    ClearSessionCookie();
+
+    $.post(
+        "http://localhost:8081/logout",
+        { session: sessionCookie }
+    );
 }
 
-navbarLogoutButton.click(navbarLogoutButtonClicked)
+navbarLogoutButton.click(navbarLogoutButtonClicked);

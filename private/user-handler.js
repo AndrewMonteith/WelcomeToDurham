@@ -39,9 +39,9 @@ function passwordIsCorrect(username, password) {
     return passwordDict.hash === inputPasswordHash;
 }
 
-function loginUser(username, response) {
+function loginUser(response, username) {
     const sessionToken = crypto.randomBytes(64).toString("hex");
-    sessionTokens[username] = sessionToken;
+    sessionTokens[sessionToken] = username;
 
     response.status(200);
     response.type("json");
@@ -67,7 +67,7 @@ function makeLoginRequest(request, response) {
     const queryUsername = request.body.username;
 
     if (passwordIsCorrect(queryUsername, request.body.password)) {
-        loginUser(queryUsername, response);
+        loginUser(response, queryUsername);
     } else {
         reportFailedAttempt(response);
     }
@@ -78,7 +78,7 @@ function logoutUserRequest(request, response) {
         utils.SendInvalidParameterResponse(response, "session", "string");
         return;
     }
-
+    
     sessionTokens[request.body.session] = undefined;
     utils.SendMessage(response, "success");
 }
