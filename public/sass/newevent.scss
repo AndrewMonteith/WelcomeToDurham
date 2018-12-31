@@ -18,8 +18,7 @@ form {
     font: bold 50px 'Poppins';
     text-align: center;
     margin: 0;
-    padding-top: 5px;
-
+    padding-top: 5px;   
     max-height: 72px;   
 }
 
@@ -41,6 +40,16 @@ form {
     resize: none;
 }
 
+#picture-upload-group {
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+#picture-label {
+    width: 100%;
+    text-align: center;
+}
+
 #event-create-button {
     font-size: 32px;
     width: 250px;
@@ -49,5 +58,11 @@ form {
 @media (min-width: 975px) {
     #form-container {
         max-width: 900px;
+    }
+}
+
+@media (max-width: 550px) {
+    #event-logo {
+        height: 200px;
     }
 }

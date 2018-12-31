@@ -1,7 +1,6 @@
 "use strict";
 
 const crypto = require("crypto");
-const sha512 = require("js-sha512");
 const utils = require("./utils");
 const pmdb = require("./pmdb/pmdb");
 
@@ -9,20 +8,21 @@ pmdb.Open("users");
 
 const sessionTokens = {};
 
+function getPasswordHash(password, salt) {
+    return crypto.createHash("sha512").update(password+salt).digest('hex');
+}
+
 function registerUser(username, password) {
     if (pmdb.Exists("users", username)) {
         console.log(`Cannot register ${username} as they already exist.`);
         return;
     }
 
-    const salt = crypto.randomBytes(512);
-    const hash = sha512.hmac(salt, password);
-
+    const salt = crypto.randomBytes(64).toString("hex");
+    const hash = getPasswordHash(password, salt);
+    
     pmdb.Set("users", username, {
-        password: {
-            hash: hash,
-            salt: salt.toString("hex")
-        }
+        password: { hash: hash, salt: salt }
     });
 
     pmdb.Write("users");
@@ -34,7 +34,7 @@ function passwordIsCorrect(username, password) {
     }
 
     const passwordDict = pmdb.Find("users", username).password;
-    const inputPasswordHash = sha512.hmac(Buffer.from(passwordDict.salt, "hex"), password);
+    const inputPasswordHash = getPasswordHash(password, passwordDict.salt);
 
     return passwordDict.hash === inputPasswordHash;
 }

@@ -20,7 +20,8 @@
     "body-parser": "^1.18.3",
     "crypto": "^1.0.1",
     "express": "^4.16.4",
-    "js-sha512": "^0.8.0",
-    "lockfile": "^1.0.4"
+    "express-fileupload": "^1.1.1-alpha.1",
+    "lockfile": "^1.0.4",
+    "uniqid": "^5.0.3"
   }
 }

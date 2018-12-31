@@ -2,13 +2,13 @@
 
 const isEmpty = str => str.trim().length === 0;
 
-function invalidQueryParamterType(response, value, type) {
+function invalidQueryParamterType(response, parameter, type) {
     response.status(400);
     response.type('json');
 
     response.json({
         Error: "Invalid query string parameter",
-        Description: `Expected ${type} for parameter ${value}`
+        Description: `Expected ${type} for parameter ${parameter}`
     });
 }
 exports.SendInvalidParamteterTypeResponse = invalidQueryParamterType;

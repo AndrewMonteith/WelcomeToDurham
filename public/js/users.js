@@ -1,26 +1,9 @@
 import { SetSessionCookie, ClearSessionCookie, GetSessionCookie, HasSessionCookie } from "./session.js";
-
-const isWhitespaceOrEmpty = s => s.trim() === "";
+import { IsWhitespaceOrEmpty, CreateErrorDialog } from "./utils.js";
 
 // ------------------------------ Error Dialog 
-
-function createErrorDialog(input, msg) {
-    const errorDialogNode = $("<div />", {
-        "class": "alert alert-danger",
-        text: msg
-    });
-
-    return display => {
-        if (display) {
-            errorDialogNode.insertAfter(input);
-        } else {
-            errorDialogNode.detach();
-        }
-    };
-}
-
 function bindInputInvalidityVisuals(input, errorMsg) {
-    const showErrorDialog = createErrorDialog(input, errorMsg);
+    const showErrorDialog = CreateErrorDialog(input, errorMsg);
 
     return isInvalid => {
         showErrorDialog(isInvalid);
@@ -35,7 +18,7 @@ function bindInputInvalidityVisuals(input, errorMsg) {
 function watchUsernameInput(input) {
     const makeInputAppearInvalid = bindInputInvalidityVisuals(input, "Username cannot be empty");
     let onValueChanged = () => {
-        const isEmpty = isWhitespaceOrEmpty(input.val());
+        const isEmpty = IsWhitespaceOrEmpty(input.val());
 
         makeInputAppearInvalid(isEmpty);
     };
@@ -83,19 +66,19 @@ const registerUsernameInput = $("#register-username");
 const registerPasswordInput = $("#register-password");
 const registerConfirmPasswordInput = $("#register-confirm-password");
 
-const usernameIsInvalidDialog = createErrorDialog(registerUsernameInput,
+const usernameIsInvalidDialog = CreateErrorDialog(registerUsernameInput,
     "Username must be only letters, numbers and underscores. Must be longer than 3 letters.");
-const usernameTakenDialog = createErrorDialog(registerUsernameInput,
+const usernameTakenDialog = CreateErrorDialog(registerUsernameInput,
     "Username already taken");
-const passwordNotValidDialog = createErrorDialog(registerPasswordInput,
+const passwordNotValidDialog = CreateErrorDialog(registerPasswordInput,
     "Password must contain a capital letter, number and punctuation and be at least 8 characters");
-const passwordNotMatching = createErrorDialog(registerConfirmPasswordInput,
+const passwordNotMatching = CreateErrorDialog(registerConfirmPasswordInput,
     "Passwords must be the same");
 
 let isUsernameTaken = false; 
 
 function isValidUsername(username) {
-    if (isWhitespaceOrEmpty(username)) {
+    if (IsWhitespaceOrEmpty(username)) {
         return false;
     }
 
@@ -127,7 +110,7 @@ function usernameInputValueChanged() {
     
     usernameTakenDialog(false); 
     
-    if (isWhitespaceOrEmpty(username)) {
+    if (IsWhitespaceOrEmpty(username)) {
         usernameIsInvalidDialog(false);
         return;
     }
@@ -146,7 +129,7 @@ function isValidPassword(password) {
             - Punctuation
         - Be at least 8 letters long.
     */
-    if (isWhitespaceOrEmpty(password)) {
+    if (IsWhitespaceOrEmpty(password)) {
         return false;
     }
 
@@ -174,7 +157,7 @@ function updateConfirmPasswordInput(isPasswordValid) {
 
 function passwordInputChanged() {
     const passwordInput = registerPasswordInput.val();
-    if (isWhitespaceOrEmpty(passwordInput)) {
+    if (IsWhitespaceOrEmpty(passwordInput)) {
         passwordNotValidDialog(false);
         return;
     }
@@ -214,7 +197,7 @@ $("#register-dialog-button").click(sendRegisterRequest);
 
 // ----------------------- Login Dialog Handler
 
-const loginRequestErrorDialog = createErrorDialog("Username or password was incorrect");
+const loginRequestErrorDialog = CreateErrorDialog("Username or password was incorrect");
 
 $("#close-login-dialog").click(() => loginRequestErrorDialog(false));
 
@@ -263,7 +246,6 @@ function navbarLogoutButtonClicked() {
 navbarLogoutButton.click(navbarLogoutButtonClicked);
 
 // ------------------------ Check Login
-
 
 
 function CheckLogin() {
