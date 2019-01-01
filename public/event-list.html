@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
         crossorigin="anonymous">
     <link rel="stylesheet" href="css/root.css">
-    <link rel="stylesheet" href="css/viewevent.css">
+    <link rel="stylesheet" href="css/eventlist.css">
 </head>
 
 <body>
@@ -33,25 +33,10 @@
         </div>
     </nav>
 
+    
     <section id="main-content">
-        <div class="container" id="event-container">
-            <p id="event-title">{Event Title}</p>
-            <img id="event-logo" src="/{Event Image}"></img>
-            <div class="container mt-3" width="100%">
-                <div class="row" height="100%">
-                    <div class="col-md-6 col-sm-12">
-                        <h3><b>Event Description</b></h3>
-                        <p id="event-description">{Event Description}</p>
-                    </div>
-                    <div class="col-md-6 col-sm-12">
-                        <h3><b>Want to attend?</b></h3>
-                        <p class="mb-0"> Currently there's <span id="number-going">{Number Going}</span> people who are going.</p>
-
-                        <input type="checkbox" id="going-checkbox">
-                        <label class="form-check-label"> I would like to go </label>
-                    </div>
-                </div>
-            </div>
+        <div class="container d-flex" id="event-list">
+            
         </div>
     </section>
 
@@ -128,7 +113,8 @@
 
     <script type="module" src="js/session.js"></script>
     <script type="module" src="js/users.js"></script>
-    <script type="module" src="js/newevent.js"></script>
+    <script type="module" src="js/eventlist.js"></script>
 </body>
+
 
 </html>

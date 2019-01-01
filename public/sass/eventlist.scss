@@ -1,0 +1,36 @@
+#event-list {
+    background-color: rgba(230, 230, 230, .6);
+    height: 100%;    
+    box-shadow: 0 0 5px 10px rgba(230, 230, 230, .6);
+    text-align: center; 
+
+    flex-wrap: wrap;
+    overflow: scroll;
+    justify-content: space-around;
+}
+
+.event {
+    background-color: rgb(230, 230, 230);
+    box-shadow: 0 0 2px 3px rgb(230, 230, 230);
+    margin-top: 30px;
+    height: 279px;
+    flex: 0 0 450px;
+
+    text-align: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.event-title {
+    font: bold 32px 'Poppins';
+    margin: 0;
+    min-width: 100%;
+    margin-bottom: 10px;
+    padding-bottom: 4px;
+}
+
+.event-image {
+    margin-top: -30px;
+    height: 200px;
+}

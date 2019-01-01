@@ -197,7 +197,8 @@ $("#register-dialog-button").click(sendRegisterRequest);
 
 // ----------------------- Login Dialog Handler
 
-const loginRequestErrorDialog = CreateErrorDialog("Username or password was incorrect");
+const loginRequestErrorDialog = CreateErrorDialog($("#login-button-contanier"),
+    "Username or password was incorrect");
 
 $("#close-login-dialog").click(() => loginRequestErrorDialog(false));
 

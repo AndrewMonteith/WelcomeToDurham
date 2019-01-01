@@ -17,25 +17,32 @@ function Open(name) {
 }
 exports.Open = Open;
 
-function Find(name, query) {
-    return openDbs[name][query];
+function Find(name, key) {
+    return openDbs[name][key];
 }
 exports.Find = Find;
 
-function Set(name, query, value) {
-    openDbs[name][query] = value;
+function Set(name, key, value) {
+    openDbs[name][key] = value;
 }
 exports.Set = Set;
 
-function Update(name, query, callback) {
-    openDbs[name][query] = callback(Find(name, query));
+function Update(name, key, callback) {
+    openDbs[name][key] = callback(Find(name, key));
 }
 exports.Update = Update;
 
-function Exists(name, query) {
-    return openDbs[name][query] !== undefined;
+function Exists(name, key) {
+    return openDbs[name][key] !== undefined;
 }
 exports.Exists = Exists;
+
+function Iterate(name, callback) {
+    let dict = openDbs[name];
+
+    Object.keys(dict).forEach(key => callback(key, dict[key]));
+}
+exports.Iterate = Iterate;
 
 function Write(name) {
     const lockName = `./private/pmdb/${name}.lock`;

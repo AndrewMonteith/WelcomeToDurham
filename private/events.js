@@ -113,6 +113,26 @@ function numberRegisteredForEventRequest(request, response) {
     utils.SendMessage(response, 200, numberGoing);
 }
 
+function getEventsOnRequest(request, response) {
+    const responseDict = {};
+    
+    pmdb.Iterate("events", (eventId, eventData) => {
+        responseDict[eventId] = {
+            Name: eventData.Name,
+            LogoURL: eventData.LogoURL
+        };
+    });
+
+    response.status(200);
+    response.json(responseDict);
+}
+
+exports.ListenOnRoutes = app => {
+    app.post("/createevent", createNewEventRequest);
+    app.get("/numberregistered", numberRegisteredForEventRequest);
+    app.get("/events",  getEventsOnRequest);
+};
+
 function replaceAll(str, replacements) {
     const re = new RegExp(Object.keys(replacements).join("|"), "g");
 
@@ -138,10 +158,4 @@ function ServeEventDetails(request, response) {
     response.send(
         renderEventWebpage(rawTemplate, eventMetadata));
 }
-
-exports.ListenOnRoutes = app => {
-    app.post("/createevent", createNewEventRequest);
-    app.get("/numberregistered", numberRegisteredForEventRequest);
-};
-
 exports.ServeEventDetails = ServeEventDetails;

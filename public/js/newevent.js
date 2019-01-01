@@ -40,7 +40,4 @@ dateInput.change(dateInputChanged);
 
 $("#sessionInput").val(GetSessionCookie());
 
-OnSessionCookieChanged("newevent", newCookie => {
-    console.log("cookie has changed to " + newCookie);
-    $("#sessionInput").val(newCookie);
-});
+OnSessionCookieChanged("newevent", cookie => $("#sessionInput").val(cookie));
