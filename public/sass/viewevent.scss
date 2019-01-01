@@ -1,0 +1,38 @@
+@import "variables.scss";
+
+#event-container {
+    background-color: rgba(230, 230, 230, .95);
+    height: 100%;    
+    flex-wrap: wrap;
+    box-shadow: 0 0 5px 10px rgba(230, 230, 230, .95);
+
+    text-align: center; 
+}
+
+p, h2, label {
+    font-family: 'Poppins';
+}    
+
+p, label {
+    font-size: 20px;
+}
+
+#event-title {
+    font: bold 50px 'Poppins';
+    width: 100%;
+    height: 72px;
+}    
+
+#event-logo {
+    height: 300px;
+}    
+
+#event-description {
+    font-size: 20px;
+}    
+
+@media ( max-width: 768px ) {
+    #event-logo {
+        height: 200px;
+    }
+}

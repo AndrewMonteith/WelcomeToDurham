@@ -43,11 +43,14 @@ form {
   font-size: 32px;
   width: 250px; }
 
+.has-image {
+  height: 300px; }
+
 @media (min-width: 975px) {
   #form-container {
     max-width: 900px; } }
 @media (max-width: 550px) {
-  #event-logo {
+  .has-image {
     height: 200px; } }
 
 /*# sourceMappingURL=newevent.css.map */

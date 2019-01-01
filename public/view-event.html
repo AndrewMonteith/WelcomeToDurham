@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
         crossorigin="anonymous">
     <link rel="stylesheet" href="css/root.css">
-    <link rel="stylesheet" href="css/newevent.css">
+    <link rel="stylesheet" href="css/viewevent.css">
 </head>
 
 <body>
@@ -34,37 +34,24 @@
     </nav>
 
     <section id="main-content">
-        <div class="container d-grid" id="form-container">
-            <p id="title">New Event</p>
+        <div class="container" id="event-container">
+            <p id="event-title">{Event Title}</p>
+            <img id="event-logo" src="/{Event Image}"></img>
+            <div class="container mt-3" width="100%">
+                <div class="row" height="100%">
+                    <div class="col-md-6 col-sm-12">
+                        <h3><b>Event Description</b></h3>
+                        <p id="event-description">{Event Description}</p>
+                    </div>
+                    <div class="col-md-6 col-sm-12">
+                        <h3><b>Want to attend?</b></h3>
+                        <p class="mb-0"> Currently there's <span id="number-going">{Number Going}</span> people who are going.</p>
 
-            <form id="new-event-form" method="POST" role="form" enctype="multipart/form-data" action="/createevent">
-                <div class="mb-3 ml-3 mt-2 form-group">
-                    <label for="event-name-input" class="form-label">Event Name</label>
-                    <input type="text" name="Name" class="form-control form-control-lg" id="event-name-input"
-                        placeholder="Name" required>
+                        <input type="checkbox" id="going-checkbox">
+                        <label class="form-check-label"> I would like to go </label>
+                    </div>
                 </div>
-                 <div class="form-group ml-3">
-                    <label for="event-description-input" class="form-label">Description</label>
-                    <textarea class="form-control" name="Description" id="event-description-input" rows="4" maxlength="300"
-                        required></textarea>
-                </div>
-                <div class="form-group ml-3">
-                    <label for="event-date-input" class="form-label">Date</label>
-                    <input type="date" class="form-control" name="Date" style="height: 45px" id="event-date-input"
-                        required>
-                </div>
-                <div class="form-group ml-3 d-flex" id="picture-upload-group">
-                    <label for="event-picture-input" class="form-label" id="picture-label">Event Picture</label>
-                    <img id="event-logo"></img>
-                    <input type="file" name="Logo" class="form-control-file" id="event-picture-input" accept="image/x-png,image/gif,image/jpeg" 
-                        required/>
-                </div>
-                <div class="form-group ml-3" style="text-align:center;">
-                    <button type="submit" class="btn modal-confirm" id="event-create-button" disabled>Create</button>
-                </div> 
-
-                <input type="hidden" readonly name="Session" id="sessionInput"> 
-            </form>
+            </div>
         </div>
     </section>
 
@@ -132,7 +119,6 @@
             </div>
         </div>
     </div>
-
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"

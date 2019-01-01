@@ -22,6 +22,7 @@
     "express": "^4.16.4",
     "express-fileupload": "^1.1.1-alpha.1",
     "lockfile": "^1.0.4",
-    "uniqid": "^5.0.3"
+    "uniqid": "^5.0.3",
+    "uniquid": "^1.1.4"
   }
 }

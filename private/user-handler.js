@@ -8,6 +8,12 @@ pmdb.Open("users");
 
 const sessionTokens = {};
 
+function isSessionTokenValid(token) {
+    console.log(`Token ${token} inside ${JSON.stringify(sessionTokens)}`);
+    return sessionTokens[token] !== undefined;
+}
+exports.IsSessionTokenValid = isSessionTokenValid;
+
 function getPasswordHash(password, salt) {
     return crypto.createHash("sha512").update(password+salt).digest('hex');
 }
@@ -42,7 +48,7 @@ function passwordIsCorrect(username, password) {
 function loginUser(response, username) {
     const sessionToken = crypto.randomBytes(64).toString("hex");
     sessionTokens[sessionToken] = username;
-
+    console.log("Updated session tokens");
     response.status(200);
     response.type("json");
     response.json({ Token: sessionToken });
@@ -166,8 +172,8 @@ function checkSessionCookie(request, response) {
         return;
     }
 
-    const hasSessionToken = request.query.session !== undefined;
-    utils.SendMessage(response, 200, hasSessionToken);
+    const sessionTokenValid = isSessionTokenValid(request.query.session);
+    utils.SendMessage(response, 200, sessionTokenValid);
 }
 
 exports.ListenOnRoutes = expressApp => {

@@ -208,7 +208,7 @@ function loginRequestSucceeded(data) {
 }
 
 function loginRequestFailed() {
-    loginRequestErrorDialog.insertAfter($("#login-button-contanier"));
+    loginRequestErrorDialog(true);
 }
 
 function makeLoginRequest() {
@@ -262,7 +262,7 @@ function CheckLogin() {
         `session=${sessionCookie}`,
         data => {
             const isLoggedIn = data.Message;
-
+            console.log("Am I logged in?" + isLoggedIn);
             changeNavbarButtons(isLoggedIn);
             if (!isLoggedIn) {
                 ClearSessionCookie();
