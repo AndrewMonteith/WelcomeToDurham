@@ -51,6 +51,5 @@ function updateEventList(events) {
 }
 
 const updateState = () => $.get("/events", updateEventList);
-
 updateState();
 window.setInterval(updateState, 30 * 1000);

@@ -7,7 +7,7 @@
   flex-wrap: wrap;
   overflow: scroll;
   justify-content: space-around;
-  align-items: center; }
+  box-sizing: border-box; }
 
 .event {
   background-color: #e6e6e6;
@@ -15,14 +15,12 @@
   margin-top: 30px;
   height: 279px;
   flex: 0 0 450px;
-  text-align: center;
   flex-wrap: wrap;
   justify-content: center;
   align-items: center; }
 
 .event-title {
   font: bold 32px 'Poppins';
-  margin: 0;
   min-width: 100%;
   margin-bottom: 10px;
   padding-bottom: 4px; }
