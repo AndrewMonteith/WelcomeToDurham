@@ -3,9 +3,11 @@
   height: 100%;
   box-shadow: 0 0 5px 10px rgba(230, 230, 230, 0.6);
   text-align: center;
+  display: flex;
   flex-wrap: wrap;
   overflow: scroll;
-  justify-content: space-around; }
+  justify-content: space-around;
+  align-items: center; }
 
 .event {
   background-color: #e6e6e6;
@@ -28,5 +30,15 @@
 .event-image {
   margin-top: -30px;
   height: 200px; }
+
+@media (max-width: 992px) {
+  #event-list {
+    display: inline-block !important;
+    text-align: center; }
+
+  .event {
+    max-width: 450px !important;
+    margin-left: auto;
+    margin-right: auto; } }
 
 /*# sourceMappingURL=eventlist.css.map */

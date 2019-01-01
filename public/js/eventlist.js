@@ -4,25 +4,53 @@ const eventItemTemplate = $(
         <img class="event-image">
     </div>`);
 
-function createNewEventListItem(eventDetails) {
+function createNewEventListItem(id, details) {
     const item = eventItemTemplate.clone();
-    item.find(".event-title").text(eventDetails.Name);
-    item.find(".event-image").attr("src", eventDetails.LogoURL);
+    item.attr("id", id);
+    item.find(".event-title").text(details.Name);
+    item.find(".event-image").attr("src", details.LogoURL);
     return item;
 }
 
-function loadEvents(events) {
-    const itemList = $("#event-list");
-   
-    Object.keys(events).forEach(name => {
-        const eventItem = createNewEventListItem(events[name]);
+let eventsInList = {};
 
-        eventItem.click(() => {
-            window.location.replace("/view-event?event=" + name);
-        });
+function removeOldEvents(newEventList) {
+    function deleteEventFromWebpage(eventId) {
+        const listItem = $("#" + eventId);
+        if (listItem.length > 0) {
+            listItem.remove();
+        }
+        eventsInList[eventId] = undefined;
+    }
 
-        itemList.append(eventItem);
-    });
+    Object.keys(eventsInList)
+        .filter(id => !newEventList[id])
+        .forEach(deleteEventFromWebpage);
 }
 
-$.get("/events", loadEvents);
+function addNewEvents(newEventList) {
+    function addEventToList(eventId) {
+        const details = newEventList[eventId];
+        const eventItem = createNewEventListItem(eventId, details);
+
+        eventItem.click(() => window.location.replace("/view-event?event=" + eventId));
+
+        $("#event-list").append(eventItem);
+        eventsInList[eventId] = details;
+    }
+
+    Object.keys(newEventList)
+        .filter(id => !eventsInList[id])
+        .forEach(addEventToList);
+}
+
+function updateEventList(events) {
+    console.log(JSON.stringify(events));
+    removeOldEvents(events);
+    addNewEvents(events);
+}
+
+const updateState = () => $.get("/events", updateEventList);
+
+updateState();
+window.setInterval(updateState, 30 * 1000);
