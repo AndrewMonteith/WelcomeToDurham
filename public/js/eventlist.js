@@ -45,11 +45,11 @@ function addNewEvents(newEventList) {
 }
 
 function updateEventList(events) {
-    console.log(JSON.stringify(events));
     removeOldEvents(events);
     addNewEvents(events);
 }
 
 const updateState = () => $.get("/events", updateEventList);
+
 updateState();
 window.setInterval(updateState, 30 * 1000);
