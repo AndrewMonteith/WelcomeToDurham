@@ -23,7 +23,7 @@ function createNewEvent(name, description, date, logo) {
         Date: date,
         LogoURL: logoUrl,
 
-        NumberGoing: 0,
+        PeopleGoing: new Set()
     };
 
     pmdb.Set("events", eventId, eventMetadata);
@@ -120,7 +120,7 @@ function numberRegisteredForEventRequest(request, response) {
         return;
     }
 
-    const numberGoing = pmdb.Find("events", eventId).NumberGoing;
+    const numberGoing = pmdb.Find("events", eventId).PeopleGoing.size;
 
     utils.SendMessage(response, 200, numberGoing);
 }
@@ -146,14 +146,20 @@ function personGoingUpdate(request, response) {
     const sessionId = checkSessionIdIsValid(request, response);
     if (!sessionId) { return; }
     
+    const username = users.GetUsernameFromSession(sessionId);
+    if (!username) {
+        utils.SendMessage(response, 400, "couldn't find username from session");
+        return;
+    }
+
     pmdb.Update("events", eventId, metadata => {
         if (request.body.going === "true") {
-            metadata.NumberGoing += 1;
+            metadata.PeopleGoing.add(username);
         } else {
-            metadata.NumberGoing -= 1;
+            metadata.PeopleGoing.delete(username);
         }
 
-        utils.SendMessage(response, 200, metadata.NumberGoing);
+        utils.SendMessage(response, 200, metadata.PeopleGoing.size);
 
         return metadata;
     });
@@ -176,7 +182,7 @@ function renderEventWebpage(stringWebapge, eventMetadata) {
     return replaceAll(stringWebapge, {
         "{Event Title}": eventMetadata.Name,
         "{Event Description}": eventMetadata.Description,
-        "{Number Going}": eventMetadata.NumberGoing,
+        "{Number Going}": eventMetadata.PeopleGoing.size,
         "{Event Image}": eventMetadata.LogoURL
     });
 }

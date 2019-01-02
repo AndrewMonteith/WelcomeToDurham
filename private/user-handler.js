@@ -9,7 +9,6 @@ pmdb.Open("users");
 const sessionTokens = {};
 
 function isSessionTokenValid(token) {
-    console.log(`Token ${token} inside ${JSON.stringify(sessionTokens)}`);
     return sessionTokens[token] !== undefined;
 }
 exports.IsSessionTokenValid = isSessionTokenValid;
@@ -175,6 +174,11 @@ function checkSessionCookie(request, response) {
     const sessionTokenValid = isSessionTokenValid(request.query.session);
     utils.SendMessage(response, 200, sessionTokenValid);
 }
+
+function GetUsernameFromSession(sessionToken) {
+    return sessionTokens[sessionToken];
+}
+exports.GetUsernameFromSession = GetUsernameFromSession;
 
 exports.ListenOnRoutes = expressApp => {
     expressApp.post("/login", loginUserRequest);
