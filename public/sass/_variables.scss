@@ -2,6 +2,8 @@
 $palantine: #7E317B;
 $navbar-height: 70px;
 
+$pane-background-color: rgba(230, 230, 230, .95);
+
 @mixin durham-button {
     background-color: $palantine !important;
     text-align: center;

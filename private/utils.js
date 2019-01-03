@@ -13,7 +13,6 @@ function invalidQueryParamterType(response, parameter, type) {
 }
 exports.SendInvalidParamteterTypeResponse = invalidQueryParamterType;
 
-
 function invalidStringParameter(request, param) {
     const value = (request.query[param] || request.body[param]);
     
@@ -27,3 +26,18 @@ function sendMessage(response, code, message) {
     response.json({Message: message});
 }
 exports.SendMessage = sendMessage;
+
+function arrayContains(arr, val) {
+    return arr.indexOf(val) > -1;
+}
+exports.Contains = arrayContains;
+
+function deleteFromArray(arr,  val) {
+    const index = arr.indexOf(val);
+    if (index == -1) {
+        return;
+    }
+
+    arr.splice(index, 1);
+}
+exports.Delete = deleteFromArray;

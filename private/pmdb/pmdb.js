@@ -46,6 +46,21 @@ function Iterate(name, callback) {
 }
 exports.Iterate = Iterate;
 
+function Query(name, callback) {
+    let result = {};
+    const db = openDbs[name];
+    
+    Object.keys(db).forEach(key => {
+        const value = db[key];
+        if (callback(value)) {
+            result[key] = value;
+        }
+    });
+
+    return result;
+}
+exports.Query = Query;
+
 function Write(name) {
     const lockName = `./private/pmdb/${name}.lock`;
     

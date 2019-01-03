@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="css/root.css">
+    <link rel="stylesheet" href="css/myevents.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="/">Welcome To Durham</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarResponsive">
+                <ul class="navbar-nav ml-auto">
+                    <li class="nav-item" id="navbar-events-on">
+                        <a class="nav-link" href="/event-list.html">Events On</a>
+                    </li>
+                    <li class="nav-item" id="navbar-login">
+                        <a class="nav-link" data-toggle="modal" data-target="#modalLoginForm" href="#">Log In</a>
+                    </li>
+                    <li class="nav-item" id="navbar-register">
+                        <a class="nav-link" data-toggle="modal" data-target="#registerModalForm" href="#">Register</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section id="main-content">
+        <div class="container" id="main-container">
+            <div class="row" style="height: 100%">
+                <div class="col-md-6 col-sm-12 event-list-group">
+                    <p class="title">Events you're going to</p>
+                    <ul class="event-list" id="going-to-list">
+                        
+                    </ul>
+                </div>
+                <div class="col-md-6 col-sm-12 event-list-group">
+                    <p class="title">Events you're running</p>
+                    <ul class="event-list" id="running-list">
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Modal Login Dialog -->
+    <div class="modal fade" id="modalLoginForm" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h4 class="modal-title">Log in</h4>
+                    <button type="button" id="close-login-dialog" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body mx-1">
+                    <div class="md-form mb-2">
+                        <label data-error="wrong" data-success="right" for="form-group">Username</label>
+                        <input type="text" class="form-control modal-username" id="login-username">
+                    </div>
+
+                    <div class="md-form mt-3">
+                        <label data-error="wrong" data-success="right" for="form-group">Password</label>
+                        <input type="password" class="form-control modal-password" id="login-password">
+                    </div>
+                </div>
+
+                <div class="modal-footer d-flex justify-content-center" id="login-button-contanier">
+                    <button class="btn modal-confirm" id="login-button">Login</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register User Dialog -->
+    <div class="modal fade" id="registerModalForm" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h4 class="modal-title">Register</h4>
+                    <button type="button" id="close-register-dialog" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body mx-1">
+                    <div class="md-form mb-2">
+                        <label data-error="wrong" data-success="right" for="form-group">Username</label>
+                        <input type="text" class="form-control modal-username" id="register-username">
+                    </div>
+
+                    <div class="md-form mt-3">
+                        <label data-error="wrong" data-success="right" for="form-group">Password</label>
+                        <input type="password" class="form-control modal-password" id="register-password">
+                    </div>
+
+                    <div class="md-form mt-3">
+                        <label data-error="wrong" data-success="right" for="form-group">Confirm Password</label>
+                        <input type="password" class="form-control modal-password" id="register-confirm-password">
+                    </div>
+                </div>
+
+                <div class="modal-footer d-flex justify-content-center">
+                    <button class="btn modal-confirm" id="register-dialog-button">Register</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k"
+        crossorigin="anonymous"></script>
+
+    <script type="module" src="js/session.js"></script>
+    <script type="module" src="js/users.js"></script>
+    <script type="module" src="js/myevents.js"></script>
+</body>
+
+</html>

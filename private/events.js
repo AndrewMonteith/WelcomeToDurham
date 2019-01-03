@@ -12,7 +12,7 @@ function sha1Hash(input) {
     return crypto.createHash("sha1").update(input).digest("hex");
 }
 
-function createNewEvent(name, description, date, logo) {
+function createNewEvent(owner, name, description, date, logo) {
     const logoUrl = sha1Hash(logo.data);
     const eventId = uniqid("event-");
 
@@ -22,8 +22,9 @@ function createNewEvent(name, description, date, logo) {
         Description: description,
         Date: date,
         LogoURL: logoUrl,
+        StartedBy: owner,
 
-        PeopleGoing: new Set()
+        PeopleGoing: []
     };
 
     pmdb.Set("events", eventId, eventMetadata);
@@ -90,7 +91,9 @@ function createNewEventRequest(request, response) {
         return;
     }
 
-    const eventId = createNewEvent(name, desc, date, logo);
+    const username = users.GetUsernameFromSession(sessionId);
+
+    const eventId = createNewEvent(username, name, desc, date, logo);
     response.redirect(`/view-event?event=${eventId}`);
 }
 
@@ -105,7 +108,6 @@ function checkEventRequestIsValid(request, response) {
     }
 
     const eventId = (request.query.event || request.body.event);
-    console.log("checking:" + eventId);
     if (!isValidEventId(eventId)) {
         utils.SendMessage(response, 400, "bad event id");
         return false;
@@ -120,7 +122,7 @@ function numberRegisteredForEventRequest(request, response) {
         return;
     }
 
-    const numberGoing = pmdb.Find("events", eventId).PeopleGoing.size;
+    const numberGoing = pmdb.Find("events", eventId).PeopleGoing.length;
 
     utils.SendMessage(response, 200, numberGoing);
 }
@@ -142,10 +144,10 @@ function getEventsOnRequest(request, response) {
 function personGoingUpdate(request, response) {
     const eventId = checkEventRequestIsValid(request, response);
     if (!eventId) { return; }
-    
+
     const sessionId = checkSessionIdIsValid(request, response);
     if (!sessionId) { return; }
-    
+
     const username = users.GetUsernameFromSession(sessionId);
     if (!username) {
         utils.SendMessage(response, 400, "couldn't find username from session");
@@ -153,15 +155,44 @@ function personGoingUpdate(request, response) {
     }
 
     pmdb.Update("events", eventId, metadata => {
-        if (request.body.going === "true") {
-            metadata.PeopleGoing.add(username);
-        } else {
-            metadata.PeopleGoing.delete(username);
+        const isGoing = utils.Contains(metadata.PeopleGoing, username);
+
+        if (request.body.going === isGoing.toString()) {
+            return;
         }
 
-        utils.SendMessage(response, 200, metadata.PeopleGoing.size);
+        if (request.body.going === "true") {
+            metadata.PeopleGoing.push(username);
+        } else {
+            utils.Delete(metadata.PeopleGoing, username);
+        }
+
+        utils.SendMessage(response, 200, metadata.PeopleGoing.length);
 
         return metadata;
+    });
+}
+
+function GetEventsRanBy(username) {
+    return pmdb.Query("events",
+        event => event.StartedBy == username);
+}
+
+function GetAttendedEvents(username) {
+    return pmdb.Query("events",
+        event => utils.Contains(event.PeopleGoing, username));
+}
+
+function getMyEventsRequest(request, response) {
+    const sessionId = checkSessionIdIsValid(request, response);
+    if (!sessionId) { return; }
+    
+    const username = users.GetUsernameFromSession(sessionId);
+
+    response.status(200);
+    response.json({
+        Running: GetEventsRanBy(username),
+        GoingTo: GetAttendedEvents(username)
     });
 }
 
@@ -170,6 +201,7 @@ exports.ListenOnRoutes = app => {
     app.post("/eventregister", personGoingUpdate);
     app.get("/events", getEventsOnRequest);
     app.get("/numberregistered", numberRegisteredForEventRequest);
+    app.get("/myevents", getMyEventsRequest);
 };
 
 function replaceAll(str, replacements) {
@@ -182,7 +214,7 @@ function renderEventWebpage(stringWebapge, eventMetadata) {
     return replaceAll(stringWebapge, {
         "{Event Title}": eventMetadata.Name,
         "{Event Description}": eventMetadata.Description,
-        "{Number Going}": eventMetadata.PeopleGoing.size,
+        "{Number Going}": eventMetadata.PeopleGoing.length,
         "{Event Image}": eventMetadata.LogoURL
     });
 }

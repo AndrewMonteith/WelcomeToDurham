@@ -1,10 +1,10 @@
 @import "variables.scss";
 
 #event-container {
-    background-color: rgba(230, 230, 230, .95);
     height: 100%;    
     flex-wrap: wrap;
-    box-shadow: 0 0 5px 10px rgba(230, 230, 230, .95);
+    background-color: $pane-background-color;
+    box-shadow: 0 0 5px 10px $pane-background-color;
 
     text-align: center; 
 }
