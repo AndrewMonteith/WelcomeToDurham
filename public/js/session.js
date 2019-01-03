@@ -26,7 +26,6 @@ function deleteCookie(key) {
 }
 
 function SetSessionCookie(cookie) {
-    console.log("Cookie has been set!");
     setCookie("session", cookie);
     RaiseCallback(cookie);
 }

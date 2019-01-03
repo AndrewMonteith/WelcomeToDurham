@@ -47,7 +47,7 @@ function passwordIsCorrect(username, password) {
 function loginUser(response, username) {
     const sessionToken = crypto.randomBytes(64).toString("hex");
     sessionTokens[sessionToken] = username;
-    console.log("Updated session tokens");
+    
     response.status(200);
     response.type("json");
     response.json({ Token: sessionToken });

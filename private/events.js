@@ -171,16 +171,38 @@ function personGoingUpdate(request, response) {
 
         return metadata;
     });
+
+    pmdb.Write("events");
 }
 
+const filterForSummary = event => { return {
+    Name: event.Name,
+    Date: event.Date,
+    LogoURL: event.LogoURL
+}; };
+
 function GetEventsRanBy(username) {
-    return pmdb.Query("events",
-        event => event.StartedBy == username);
+    const result = {};
+
+    pmdb.Iterate("events", (eventId, eventData) => {
+        if (eventData.StartedBy !== username) { return; }
+
+        result[eventId] = filterForSummary(eventData);
+    });
+
+    return result;
 }
 
 function GetAttendedEvents(username) {
-    return pmdb.Query("events",
-        event => utils.Contains(event.PeopleGoing, username));
+    const result = {};
+
+    pmdb.Iterate("events", (eventId, eventData) => {
+        if (!utils.Contains(eventData.PeopleGoing, username)) { return; }
+
+        result[eventId] = filterForSummary(eventData);
+    });
+
+    return result;
 }
 
 function getMyEventsRequest(request, response) {
@@ -196,10 +218,20 @@ function getMyEventsRequest(request, response) {
     });
 }
 
+function getEventDescriptionRequest(request, response) {
+    const eventId = checkEventRequestIsValid(request, response);
+    if (!eventId) { return; }
+
+    const eventDesc = pmdb.Find("events", eventId).Description;
+
+    utils.SendMessage(response, 200, eventDesc);
+}
+
 exports.ListenOnRoutes = app => {
     app.post("/createevent", createNewEventRequest);
     app.post("/eventregister", personGoingUpdate);
     app.get("/events", getEventsOnRequest);
+    app.get("/getdescription", getEventDescriptionRequest);
     app.get("/numberregistered", numberRegisteredForEventRequest);
     app.get("/myevents", getMyEventsRequest);
 };

@@ -19,7 +19,8 @@ a {
   outline: 0 !important; }
 
 nav, .nav-item {
-  background-color: #7E317B; }
+  background-color: #7E317B;
+  z-index: 1000; }
 
 .navbar > .container {
   margin-left: 0;

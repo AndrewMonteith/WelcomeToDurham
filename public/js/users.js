@@ -263,7 +263,7 @@ function CheckLogin() {
         `session=${sessionCookie}`,
         data => {
             const isLoggedIn = data.Message;
-            console.log("Am I logged in?" + isLoggedIn);
+            
             changeNavbarButtons(isLoggedIn);
             if (!isLoggedIn) {
                 ClearSessionCookie();

@@ -1,4 +1,4 @@
-export { IsWhitespaceOrEmpty , CreateErrorDialog };
+export { IsWhitespaceOrEmpty , CreateErrorDialog, NewTimer };
 
 function IsWhitespaceOrEmpty(s) {
     return s.trim() === "";
@@ -19,3 +19,14 @@ function CreateErrorDialog(input, msg) {
     };
 }
 
+function NewTimer(timeout, callback) {
+    let timer;
+
+    const startTimer = () => { timer = setTimeout(callback, timeout); };
+    const stopTimer = () => { clearTimeout(timeout); }
+
+    return {
+        start: startTimer,
+        stop: stopTimer,
+    };
+}

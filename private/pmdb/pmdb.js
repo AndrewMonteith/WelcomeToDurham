@@ -28,9 +28,7 @@ function Set(name, key, value) {
 exports.Set = Set;
 
 function Update(name, key, callback) {
-    console.log("before update:" + openDbs[name][key])
-    openDbs[name][key] = callback(Find(name, key));
-    console.log("after update:" + openDbs[name][key])
+     openDbs[name][key] = callback(Find(name, key));
 }
 exports.Update = Update;
 

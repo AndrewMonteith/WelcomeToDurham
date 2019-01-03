@@ -7,8 +7,6 @@ const updateLabelCallback = data =>
     $("#number-going").text(data.Message);
 
 function checkboxStateChanged() {
-    console.log("update");
-    console.log(this.checked);
     $.post("/eventregister",
         {
             event:eventId,
@@ -26,4 +24,5 @@ function updatePageState() {
         updateLabelCallback);
 }
 
-window.setInterval(updatePageState, 1 * 1000);
+updatePageState();
+window.setInterval(updatePageState, 30 * 1000);
