@@ -17,7 +17,7 @@ function getPasswordHash(password, salt) {
     return crypto.createHash("sha512").update(password+salt).digest('hex');
 }
 
-function registerUser(username, password) {
+function registerUser(firstname, surname, username, password) {
     if (pmdb.Exists("users", username)) {
         console.log(`Cannot register ${username} as they already exist.`);
         return;
@@ -27,6 +27,8 @@ function registerUser(username, password) {
     const hash = getPasswordHash(password, salt);
     
     pmdb.Set("users", username, {
+        firstname: firstname,
+        surname: surname,
         password: { hash: hash, salt: salt }
     });
 
@@ -59,12 +61,12 @@ function reportFailedAttempt(response) {
 
 function loginUserRequest(request, response) {
     if (utils.InvalidStringParameter(request, "username")) {
-        utils.invalidQueryParamterType(response, "username", "string");
+        utils.SendInvalidParamteterTypeResponse(response, "username", "string");
         return;
     }
 
     if (utils.InvalidStringParameter(request, "password")) {
-        utils.invalidQueryParamterType(response, "password", "string");
+        utils.SendInvalidParamteterTypeResponse(response, "password", "string");
         return;
     }
 
@@ -79,7 +81,7 @@ function loginUserRequest(request, response) {
 
 function logoutUserRequest(request, response) {
     if (utils.InvalidStringParameter(request, "session")) {
-        utils.invalidQueryParamterType(response, "session", "string");
+        utils.SendInvalidParamteterTypeResponse(response, "session", "string");
         return;
     }
 
@@ -127,7 +129,7 @@ function isValidPassword(password) {
 
 function registerUserRequest(request, response) {
     if (utils.InvalidStringParameter(request, "username")) {
-        utils.invalidQueryParamterType(response, "username", "string");
+        utils.SendInvalidParamteterTypeResponse(response, "username", "string");
         return;
     }
 
@@ -138,7 +140,7 @@ function registerUserRequest(request, response) {
     }
 
     if (utils.InvalidStringParameter(request, "password")) {
-        utils.invalidQueryParamterType(response, "password", "string");
+        utils.SendInvalidParamteterTypeResponse(response, "password", "string");
         return;
     }
 
@@ -148,7 +150,19 @@ function registerUserRequest(request, response) {
         return;
     }
 
-    registerUser(username, password);
+    if (utils.InvalidStringParameter(request, "firstname")){
+        utils.SendInvalidParamteterTypeResponse(response, "firstname", "string");
+        return;
+    }
+    const firstname = request.body.firstname;
+
+    if (utils.InvalidStringParameter(request, "surname")) {
+        utils.SendInvalidParamteterTypeResponse(response, "surname", "string");
+        return;
+    }
+    const surname = request.body.surname;
+
+    registerUser(firstname, surname, username, password);
     loginUser(response, username);
 }
 
@@ -158,7 +172,7 @@ function doesUsernameExist(username) {
 
 function checkUsernameExists(request, response) {
     if (utils.InvalidStringParameter(request, "username")) {
-        utils.InvalidQueryParamterType(response, "username", "string");
+        utils.SendInvalidParamteterTypeResponse(response, "username", "string");
         return;
     }
 
@@ -167,7 +181,7 @@ function checkUsernameExists(request, response) {
 
 function checkSessionCookie(request, response) {
     if (utils.InvalidStringParameter(request, "session")) {
-        utils.invalidQueryParamterType(response, "session", "string");
+        utils.SendInvalidParamteterTypeResponse(response, "session", "string");
         return;
     }
 

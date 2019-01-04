@@ -62,10 +62,14 @@ function changeNavbarButtons(isLoggedIn) {
 }
 
 // ----------------------- Register Dialog Handler
+const registerFirstnameInput = $("#register-firstname");
+const registerSecondnameInput = $("#register-secondname");
 const registerUsernameInput = $("#register-username");
 const registerPasswordInput = $("#register-password");
 const registerConfirmPasswordInput = $("#register-confirm-password");
 
+const nameIsEmptyDialog = CreateErrorDialog($("#names-container"),
+    "Names cannot be empty!");
 const usernameIsInvalidDialog = CreateErrorDialog(registerUsernameInput,
     "Username must be only letters, numbers and underscores. Must be longer than 3 letters.");
 const usernameTakenDialog = CreateErrorDialog(registerUsernameInput,
@@ -158,7 +162,7 @@ function updateConfirmPasswordInput(isPasswordValid) {
 function passwordInputChanged() {
     const passwordInput = registerPasswordInput.val();
     if (IsWhitespaceOrEmpty(passwordInput)) {
-        passwordNotValidDialog(false);
+        passwordNotValidDialog(true);
         return;
     }
 
@@ -170,7 +174,22 @@ function passwordInputChanged() {
 registerPasswordInput.on('input propertychange paste', passwordInputChanged);
 registerConfirmPasswordInput.on('input propertychange paste', passwordInputChanged);
 
+function namesHaveBeenEntered() {
+    const inputValid = !(IsWhitespaceOrEmpty(registerFirstnameInput.val()) || 
+            IsWhitespaceOrEmpty(registerSecondnameInput.val()));
+
+    nameIsEmptyDialog(!inputValid);
+
+    return inputValid;
+}
+
 function sendRegisterRequest() {
+    if (!namesHaveBeenEntered()) {
+        return;
+    }
+    const firstname = registerFirstnameInput.val();
+    const surname = registerSecondnameInput.val();
+
     const username = registerUsernameInput.val();
     if (!isValidUsername(username)) {
         return;
@@ -186,7 +205,12 @@ function sendRegisterRequest() {
     }
 
     $.post("http://localhost:8081/register",
-        {username: username, password: password})
+        {
+            username: username, 
+            password: password,
+            firstname: firstname,
+            secondname: surname
+        })
         .done(data => {
             $("#close-register-dialog").trigger("click");
             loginRequestSucceeded(data); // "Register Succeeded."
