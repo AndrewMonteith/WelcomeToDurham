@@ -37,13 +37,14 @@
         <div class="container" id="event-container">
             <p id="event-title">{Event Title}</p>
             <img id="event-logo" src="/{Event Image}"></img>
+
             <div class="container mt-3" width="100%">
                 <div class="row" height="100%">
-                    <div class="col-md-6 col-sm-12">
+                    <div class="col-md-6 col-sm-12" id="description-panel">
                         <h3><b>Event Description</b></h3>
                         <p id="event-description">{Event Description}</p>
                     </div>
-                    <div class="col-md-6 col-sm-12">
+                    <div class="col-md-6 col-sm-12" id="going-panel">
                         <h3><b>Want to attend?</b></h3>
                         <p class="mb-0"> Currently there's <span id="number-going">{Number Going}</span> people who are
                             going.</p>
@@ -52,7 +53,33 @@
                         <label class="form-check-label"> I would like to go </label>
                     </div>
                 </div>
+
+                <div class="row">
+                    <div class="col-md-6 col-sm-12">
+                        <h3><b>People Going</b></h3>
+
+                        <div id="people-list">
+                            
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6 ">
+                        <h3><b>Comments</b></h3>
+                        <div id="comment-list">
+                            <!-- <div class="comment-group">
+                                <p class="comment">Derp Derp Derp Derp Derp Derp Derp Derp Derp Derp Derp Derp Derp
+                                    Derp</p>
+                                <p class="commenter">Commented by Foobar</p>
+                            </div> -->
+                        </div>
+                        <div style="text-align: none; display: inline-block;" id="comment-group">
+                            <input type="text" width="80%" id="comment-input" placeholder="Enter Comment..." maxlength="200">
+                            <button class="btn" id="submit-button">Comment</button>
+                        </div>
+                    </div>
+                </div>
             </div>
+
+
         </div>
     </section>
 

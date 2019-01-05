@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const uniqid = require("uniqid");
 const fs = require("fs");
+const xss = require("xss");
 
 const utils = require("./utils");
 const users = require("./user-handler");
@@ -24,7 +25,8 @@ function createNewEvent(owner, name, description, date, logo) {
         LogoURL: logoUrl,
         StartedBy: owner,
 
-        PeopleGoing: []
+        PeopleGoing: [],
+        Comments: [],
     };
 
     pmdb.Set("events", eventId, eventMetadata);
@@ -51,7 +53,7 @@ function checkSessionIdIsValid(request, response) {
     return session;
 }
 
-function createNewEventRequest(request, response) {
+function createNewEventUpdate(request, response) {
     const sessionId = checkSessionIdIsValid(request, response);
     if (!sessionId) {
         return;
@@ -116,16 +118,16 @@ function checkEventRequestIsValid(request, response) {
     return eventId;
 }
 
-function numberRegisteredForEventRequest(request, response) {
-    const eventId = checkEventRequestIsValid(request, response);
-    if (!eventId) {
-        return;
-    }
+// function numberRegisteredForEventRequest(request, response) {
+//     const eventId = checkEventRequestIsValid(request, response);
+//     if (!eventId) {
+//         return;
+//     }
 
-    const numberGoing = pmdb.Find("events", eventId).PeopleGoing.length;
+//     const numberGoing = pmdb.Find("events", eventId).PeopleGoing.length;
 
-    utils.SendMessage(response, 200, numberGoing);
-}
+//     utils.SendMessage(response, 200, numberGoing);
+// }
 
 function getEventsOnRequest(request, response) {
     const responseDict = {};
@@ -158,7 +160,7 @@ function personGoingUpdate(request, response) {
         const isGoing = utils.Contains(metadata.PeopleGoing, username);
 
         if (request.body.going === isGoing.toString()) {
-            return;
+            return metadata;
         }
 
         if (request.body.going === "true") {
@@ -175,11 +177,13 @@ function personGoingUpdate(request, response) {
     pmdb.Write("events");
 }
 
-const filterForSummary = event => { return {
-    Name: event.Name,
-    Date: event.Date,
-    LogoURL: event.LogoURL
-}; };
+const filterForSummary = event => {
+    return {
+        Name: event.Name,
+        Date: event.Date,
+        LogoURL: event.LogoURL
+    };
+};
 
 function GetEventsRanBy(username) {
     const result = {};
@@ -208,7 +212,7 @@ function GetAttendedEvents(username) {
 function getMyEventsRequest(request, response) {
     const sessionId = checkSessionIdIsValid(request, response);
     if (!sessionId) { return; }
-    
+
     const username = users.GetUsernameFromSession(sessionId);
 
     response.status(200);
@@ -227,12 +231,65 @@ function getEventDescriptionRequest(request, response) {
     utils.SendMessage(response, 200, eventDesc);
 }
 
+function getViewEventStateRequest(request, response) {
+    const eventId = checkEventRequestIsValid(request, response);
+    if (!eventId) { return; }
+
+    const eventMetadata = pmdb.Find("events", eventId);
+
+    const responseMessage = {
+        PeopleGoing: eventMetadata.PeopleGoing,
+        Comments: eventMetadata.Comments
+    };
+
+    if (!utils.InvalidStringParameter(request, "session")) {
+        responseMessage.IsGoing = utils.Contains(eventMetadata.PeopleGoing,
+            request.body.Session);
+    }
+
+    response.status(200);
+    response.json(responseMessage);
+}
+
+function makeCommentUpdate(request, response) {
+    const eventId = checkEventRequestIsValid(request, response);
+    if (!eventId) { return; }
+
+    const sessionId = checkSessionIdIsValid(request, response);
+    if (!sessionId) { return; }
+
+    if (utils.InvalidStringParameter(request, "comment") ||
+            utils.IsWhitespaceOrEmpty(request.body.comment)) {
+        utils.SendInvalidParamteterTypeResponse(response, "comment", "string");
+        return;
+    }
+
+    const commenter = users.GetUsernameFromSession(sessionId);
+    const comment = {
+        comment: xss(request.body.comment),
+        commenter: commenter
+    };
+
+    pmdb.Update("events", eventId, metadata => {
+        metadata.Comments.push(comment);
+        return metadata;
+    });
+
+    pmdb.Write("events");
+
+    response.status(200);
+    response.json(comment);
+}
+
 exports.ListenOnRoutes = app => {
-    app.post("/createevent", createNewEventRequest);
+    app.post("/createevent", createNewEventUpdate);
     app.post("/eventregister", personGoingUpdate);
+    app.post("/makecomment", makeCommentUpdate);
+
     app.get("/events", getEventsOnRequest);
+    app.get("/getvieweventstate", getViewEventStateRequest);
     app.get("/getdescription", getEventDescriptionRequest);
-    app.get("/numberregistered", numberRegisteredForEventRequest);
+    // app.get("/numberregistered", numberRegisteredForEventRequest);
     app.get("/myevents", getMyEventsRequest);
 };
 

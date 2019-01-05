@@ -41,3 +41,8 @@ function deleteFromArray(arr,  val) {
     arr.splice(index, 1);
 }
 exports.Delete = deleteFromArray;
+
+function isWhitespaceOrEmpty(str) {
+    return str.trim() === "";
+}
+exports.IsWhitespaceOrEmpty = isWhitespaceOrEmpty;
