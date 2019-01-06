@@ -31,9 +31,11 @@ $('.modal-username').each((_, input) => watchUsernameInput($(input)));
 
 const navbarLoginButton = $("#navbar-login"), navbarRegisterButton = $("#navbar-register");
 
-const createNavbarButton = (newId, newText) => {
+const redirectTo = url => () => window.location.replace(url);
+const createNavbarButton = (newId, newText, href) => {
     const navbarButton = navbarLoginButton.clone();
 
+    navbarButton.click(redirectTo(href));
     navbarButton.attr("id", newId);
     navbarButton.children().removeAttr("data-toggle", "data-target");
     navbarButton.children().text(newText);
@@ -41,8 +43,8 @@ const createNavbarButton = (newId, newText) => {
     return navbarButton;
 };
 
-const navbarMyEvents = createNavbarButton("navbar-my-events", "My Events");
-const navbarMakeEvent = createNavbarButton("navbar-create-event", "Start an event");
+const navbarMyEvents = createNavbarButton("navbar-my-events", "My Events", "/my-events.html");
+const navbarMakeEvent = createNavbarButton("navbar-create-event", "Start an event", "/new-event.html");
 const navbarLogoutButton = createNavbarButton("navbar-logout-button", "Logout");
 
 function changeNavbarButtons(isLoggedIn) {
