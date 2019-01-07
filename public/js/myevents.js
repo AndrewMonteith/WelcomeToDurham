@@ -18,7 +18,8 @@ const fillEventDescription = (eventId, descNode) => {
 
     $.get("/getdescription",
         {event: eventId})
-        .done(fillNode);
+        .done(fillNode)
+        .fail(console.log);
 };
 
 function listenForHover(eventId, eventNode) {

@@ -171,7 +171,7 @@ endpoints.GET['/getvieweventstate'] = getViewEventDetailsEndpoint;
 
 
 function getEventDescriptionEndpoint(request, response) {
-    const eventId = validators.ValidateDateParameter(request, response);
+    const eventId = validators.ValidateEventParameter(request, response);
     if (eventId === undefined) { return; }
 
     const eventDesc = pmdb.Find("events", eventId).Description;

@@ -134,6 +134,7 @@ function checkSessionCookieEndpoint(request, response) {
 }
 endpoints.GET['/amILoggedIn'] = checkSessionCookieEndpoint;
 
+
 function ListenOnRoutes(app) {
     Object.keys(endpoints.POST)
         .forEach(endpoint => app.post(endpoint, endpoints.POST[endpoint]));
