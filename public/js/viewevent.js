@@ -46,7 +46,6 @@ function PopulatePeopleList(peopleGoing) {
 }
 
 function addComment(comment) {
-    console.log(comment);
     const commentNode = (`<div class="comment-group">
         <p class="comment">${comment.comment}</p>
         <p class="commenter">${comment.commenter}</p>
@@ -69,7 +68,7 @@ function PopulateCommentList(comments) {
 
 function UpdateLoggedInPanel(data) {
     const numberGoing = data.PeopleGoing.length;
-    const userGoing = data.UserGoing;
+    const userGoing = data.IsGoing;
 
     $("#going-checkbox").prop("checked", userGoing);
     $("#number-going").text(numberGoing);
@@ -106,7 +105,7 @@ function updatePage(data) {
 
 function updatePageState() {
     $.get("/getvieweventstate",
-        {event:eventId},
+        {event:eventId, Session: GetSessionCookie()},
         updatePage);
 }
 

@@ -35,7 +35,9 @@ const redirectTo = url => () => window.location.replace(url);
 const createNavbarButton = (newId, newText, href) => {
     const navbarButton = navbarLoginButton.clone();
 
-    navbarButton.click(redirectTo(href));
+    if (href !== undefined) {
+        navbarButton.click(redirectTo(href));
+    }
     navbarButton.attr("id", newId);
     navbarButton.children().removeAttr("data-toggle", "data-target");
     navbarButton.children().text(newText);
@@ -104,7 +106,7 @@ function checkInputUsernameIsntTaken() {
 
     $.get(
         "http://localhost:8081/usernameExists/",
-        `username=${inputUsername}`,
+        {username: inputUsername},
         response => {
             isUsernameTaken = response.Message;
             usernameTakenDialog(isUsernameTaken);
@@ -211,13 +213,12 @@ function sendRegisterRequest() {
             username: username, 
             password: password,
             firstname: firstname,
-            secondname: surname
+            surname: surname
         })
         .done(data => {
             $("#close-register-dialog").trigger("click");
             loginRequestSucceeded(data); // "Register Succeeded."
-        }) 
-        .fail(console.log);
+        }) ;
 }
 $("#register-dialog-button").click(sendRegisterRequest);
 
@@ -234,7 +235,7 @@ function loginRequestSucceeded(data) {
     SetSessionCookie(data.Token);
 }
 
-function loginRequestFailed() {
+function loginRequestFailed(response) {
     loginRequestErrorDialog(true);
 }
 
@@ -259,7 +260,7 @@ function MakeLogoutRequest() {
 
     $.post(
         "http://localhost:8081/logout",
-        { session: sessionCookie }
+        { Session: sessionCookie }
     );
 }
 
@@ -286,10 +287,9 @@ function CheckLogin() {
 
     $.get(
         "http://localhost:8081/amILoggedIn",
-        `session=${sessionCookie}`,
+        {Session: sessionCookie},
         data => {
             const isLoggedIn = data.Message;
-            
             changeNavbarButtons(isLoggedIn);
             if (!isLoggedIn) {
                 ClearSessionCookie();

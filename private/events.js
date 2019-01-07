@@ -1,19 +1,25 @@
+// Refractored Version.
+
 const crypto = require("crypto");
 const uniqid = require("uniqid");
 const fs = require("fs");
 const xss = require("xss");
 
 const utils = require("./utils");
-const users = require("./user-handler");
+const session = require("./sessions");
 const pmdb = require("./pmdb/pmdb");
+const validators = require("./validators");
 
 pmdb.Open("events");
 
-function sha1Hash(input) {
-    return crypto.createHash("sha1").update(input).digest("hex");
-}
+const endpoints = {
+    POST: {},
+    GET: {}
+};
 
 function createNewEvent(owner, name, description, date, logo) {
+    const sha1Hash = data => crypto.createHash("sha1").update(data).digest("hex");
+
     const logoUrl = sha1Hash(logo.data);
     const eventId = uniqid("event-");
 
@@ -32,138 +38,37 @@ function createNewEvent(owner, name, description, date, logo) {
     pmdb.Set("events", eventId, eventMetadata);
     logo.mv("./private/resources/" + logoUrl);
 
-    pmdb.Write("events");
-
     return eventId;
 }
 
-function checkSessionIdIsValid(request, response) {
-    if (utils.InvalidStringParameter(request, "Session")) {
-        utils.SendInvalidParamteterTypeResponse(response, "Session", "string");
-        return;
-    }
+function createNewEventEndpoint(request, response) {
+    const requestParameters = validators.ValidateRequestParameters(
+        request, response,
+        { Name: "string", Description: "string", Date: "date", Logo: "image", Session: "session" });
+    if (requestParameters === undefined) { return; }
 
-    const session = request.query.Session || request.body.Session;
+    const userStartingEvent = session.GetUsernameFromToken(requestParameters.Session);
+    const eventId = createNewEvent(userStartingEvent, requestParameters.Name,
+        requestParameters.Description, requestParameters.Date, requestParameters.Logo);
 
-    if (!users.IsSessionTokenValid(session)) {
-        utils.SendMessage(response, 400, "bad session id");
-        return;
-    }
-
-    return session;
+    response.redirect(`/view-event?event=${eventId}`)
 }
+endpoints.POST['/createevent'] = createNewEventEndpoint;
 
-function createNewEventUpdate(request, response) {
-    const sessionId = checkSessionIdIsValid(request, response);
-    if (!sessionId) {
-        return;
-    }
 
-    if (utils.InvalidStringParameter(request, "Name")) {
-        utils.SendInvalidParamteterTypeResponse(response, "Name", "string");
-        return;
-    }
-    const name = request.body.Name;
+function personGoingUpdateEndpoint(request, response) {
+    const requestParameters = validators.ValidateRequestParameters(
+        request, response, { Session: "session", Event: "event", going: "bool" });
+    if (requestParameters === undefined) { return; }
 
-    if (utils.InvalidStringParameter(request, "Description")) {
-        utils.SendInvalidParamteterTypeResponse(response, "Description", "string");
-        return;
-    }
-    const desc = request.body.Description;
+    const username = session.GetUsernameFromToken(requestParameters.Session);
 
-    if (utils.InvalidStringParameter(request, "Date")) {
-        utils.SendInvalidParamteterTypeResponse(response, "Date", "date");
-        return;
-    }
-    const date = request.body.Date;
-
-    if (!date.match(/\d\d\d\d-\d\d-\d\d/)) {
-        utils.SendMessage(response, 400, "Bad date format");
-        return;
-    }
-
-    if (request.files.Logo === undefined) {
-        utils.SendMessage(response, 400, "need to send logo");
-        return;
-    }
-    const logo = request.files.Logo;
-
-    if (!logo.mimetype.startsWith("image/")) {
-        utils.SendInvalidParamteterTypeResponse(response, "Logo", "image");
-        return;
-    }
-
-    const username = users.GetUsernameFromSession(sessionId);
-
-    const eventId = createNewEvent(username, name, desc, date, logo);
-    response.redirect(`/view-event?event=${eventId}`);
-}
-
-function isValidEventId(eventId) {
-    return pmdb.Find("events", eventId) !== undefined;
-}
-
-function checkEventRequestIsValid(request, response) {
-    if (utils.InvalidStringParameter(request, "event")) {
-        utils.SendInvalidParamteterTypeResponse(response, "event", "string");
-        return false;
-    }
-
-    const eventId = (request.query.event || request.body.event);
-    if (!isValidEventId(eventId)) {
-        utils.SendMessage(response, 400, "bad event id");
-        return false;
-    }
-
-    return eventId;
-}
-
-// function numberRegisteredForEventRequest(request, response) {
-//     const eventId = checkEventRequestIsValid(request, response);
-//     if (!eventId) {
-//         return;
-//     }
-
-//     const numberGoing = pmdb.Find("events", eventId).PeopleGoing.length;
-
-//     utils.SendMessage(response, 200, numberGoing);
-// }
-
-function getEventsOnRequest(request, response) {
-    const responseDict = {};
-
-    pmdb.Iterate("events", (eventId, eventData) => {
-        responseDict[eventId] = {
-            Name: eventData.Name,
-            LogoURL: eventData.LogoURL
-        };
-    });
-
-    response.status(200);
-    response.json(responseDict);
-}
-
-function personGoingUpdate(request, response) {
-    const eventId = checkEventRequestIsValid(request, response);
-    if (!eventId) { return; }
-
-    const sessionId = checkSessionIdIsValid(request, response);
-    if (!sessionId) { return; }
-
-    const username = users.GetUsernameFromSession(sessionId);
-    if (!username) {
-        utils.SendMessage(response, 400, "couldn't find username from session");
-        return;
-    }
-
-    pmdb.Update("events", eventId, metadata => {
+    pmdb.Update("events", requestParameters.Event, metadata => {
         const isGoing = utils.Contains(metadata.PeopleGoing, username);
 
-        if (request.body.going === isGoing.toString()) {
-            return metadata;
-        }
+        if (requestParameters.going === isGoing) { return metadata; }
 
-        if (request.body.going === "true") {
+        if (requestParameters.going) {
             metadata.PeopleGoing.push(username);
         } else {
             utils.Delete(metadata.PeopleGoing, username);
@@ -173,125 +78,30 @@ function personGoingUpdate(request, response) {
 
         return metadata;
     });
-
-    pmdb.Write("events");
 }
+endpoints.POST['/eventregister'] = personGoingUpdateEndpoint;
 
-const filterForSummary = event => {
-    return {
-        Name: event.Name,
-        Date: event.Date,
-        LogoURL: event.LogoURL
-    };
-};
 
-function GetEventsRanBy(username) {
-    const result = {};
+function makeCommentEndpoint(request, response) {
+    const requestParameters = validators.ValidateRequestParameters(
+        request, response, { Session: 'session', event: 'event', comment: 'string' });
+    if (requestParameters === undefined) { return; }
 
-    pmdb.Iterate("events", (eventId, eventData) => {
-        if (eventData.StartedBy !== username) { return; }
-
-        result[eventId] = filterForSummary(eventData);
-    });
-
-    return result;
-}
-
-function GetAttendedEvents(username) {
-    const result = {};
-
-    pmdb.Iterate("events", (eventId, eventData) => {
-        if (!utils.Contains(eventData.PeopleGoing, username)) { return; }
-
-        result[eventId] = filterForSummary(eventData);
-    });
-
-    return result;
-}
-
-function getMyEventsRequest(request, response) {
-    const sessionId = checkSessionIdIsValid(request, response);
-    if (!sessionId) { return; }
-
-    const username = users.GetUsernameFromSession(sessionId);
-
-    response.status(200);
-    response.json({
-        Running: GetEventsRanBy(username),
-        GoingTo: GetAttendedEvents(username)
-    });
-}
-
-function getEventDescriptionRequest(request, response) {
-    const eventId = checkEventRequestIsValid(request, response);
-    if (!eventId) { return; }
-
-    const eventDesc = pmdb.Find("events", eventId).Description;
-
-    utils.SendMessage(response, 200, eventDesc);
-}
-
-function getViewEventStateRequest(request, response) {
-    const eventId = checkEventRequestIsValid(request, response);
-    if (!eventId) { return; }
-
-    const eventMetadata = pmdb.Find("events", eventId);
-
-    const responseMessage = {
-        PeopleGoing: eventMetadata.PeopleGoing,
-        Comments: eventMetadata.Comments
-    };
-
-    if (!utils.InvalidStringParameter(request, "session")) {
-        responseMessage.IsGoing = utils.Contains(eventMetadata.PeopleGoing,
-            request.body.Session);
-    }
-
-    response.status(200);
-    response.json(responseMessage);
-}
-
-function makeCommentUpdate(request, response) {
-    const eventId = checkEventRequestIsValid(request, response);
-    if (!eventId) { return; }
-
-    const sessionId = checkSessionIdIsValid(request, response);
-    if (!sessionId) { return; }
-
-    if (utils.InvalidStringParameter(request, "comment") ||
-            utils.IsWhitespaceOrEmpty(request.body.comment)) {
-        utils.SendInvalidParamteterTypeResponse(response, "comment", "string");
-        return;
-    }
-
-    const commenter = users.GetUsernameFromSession(sessionId);
     const comment = {
-        comment: xss(request.body.comment),
-        commenter: commenter
+        commenter: session.GetUsernameFromToken(requestParameters.Session),
+        comment: xss(requestParameters.comment)
     };
 
-    pmdb.Update("events", eventId, metadata => {
+    pmdb.Update("events", requestParameters.event, metadata => {
         metadata.Comments.push(comment);
         return metadata;
     });
 
-    pmdb.Write("events");
-
     response.status(200);
     response.json(comment);
 }
+endpoints.POST['/makecomment'] = makeCommentEndpoint;
 
-exports.ListenOnRoutes = app => {
-    app.post("/createevent", createNewEventUpdate);
-    app.post("/eventregister", personGoingUpdate);
-    app.post("/makecomment", makeCommentUpdate);
-
-    app.get("/events", getEventsOnRequest);
-    app.get("/getvieweventstate", getViewEventStateRequest);
-    app.get("/getdescription", getEventDescriptionRequest);
-    // app.get("/numberregistered", numberRegisteredForEventRequest);
-    app.get("/myevents", getMyEventsRequest);
-};
 
 function replaceAll(str, replacements) {
     const re = new RegExp(Object.keys(replacements).join("|"), "g");
@@ -308,9 +118,9 @@ function renderEventWebpage(stringWebapge, eventMetadata) {
     });
 }
 
-function ServeEventDetails(request, response) {
-    const eventId = checkEventRequestIsValid(request, response);
-    if (!eventId) { return; }
+function viewEventEndpoint(request, response) {
+    const eventId = validators.ValidateEventParameter(request, response);
+    if (eventId === undefined) { return; }
 
     let rawTemplate = fs.readFileSync("./public/view-event.html").toString();
     const eventMetadata = pmdb.Find("events", eventId);
@@ -318,4 +128,109 @@ function ServeEventDetails(request, response) {
     response.send(
         renderEventWebpage(rawTemplate, eventMetadata));
 }
-exports.ServeEventDetails = ServeEventDetails;
+endpoints.GET['/view-event'] = viewEventEndpoint;
+
+
+function getListOfEventsEndpoint(request, response) {
+    const responseDict = {};
+
+    pmdb.Iterate("events", (eventId, eventData) => {
+        responseDict[eventId] = {
+            Name: eventData.Name,
+            LogoURL: eventData.LogoURL
+        };
+    });
+
+    response.status(200);
+    response.json(responseDict);
+}
+endpoints.GET['/events'] = getListOfEventsEndpoint;
+
+
+function getViewEventDetailsEndpoint(request, response) {
+    const eventId = validators.ValidateEventParameter(request, response);
+    if (eventId === undefined) { return; }
+
+    const eventMetadata = pmdb.Find("events", eventId);
+
+    const responseMessage = {
+        PeopleGoing: eventMetadata.PeopleGoing,
+        Comments: eventMetadata.Comments
+    };
+
+    const sessionId = validators.GetStringParameter(request, "Session");
+    if (sessionId !== undefined) {
+        responseMessage.IsGoing = utils.Contains(
+            eventMetadata.PeopleGoing, session.GetUsernameFromToken(sessionId));
+    }
+
+    response.status(200);
+    response.json(responseMessage);
+}
+endpoints.GET['/getvieweventstate'] = getViewEventDetailsEndpoint;
+
+
+function getEventDescriptionEndpoint(request, response) {
+    const eventId = validators.ValidateDateParameter(request, response);
+    if (eventId === undefined) { return; }
+
+    const eventDesc = pmdb.Find("events", eventId).Description;
+
+    utils.SendMessage(response, 200, eventDesc);
+}
+endpoints.GET['/getdescription'] = getEventDescriptionEndpoint;
+
+
+function summariseEventDetails(event) {
+    return {
+        Name: event.Name,
+        Date: event.Date,
+        LogoURL: event.LogoURL
+    };
+}
+
+function findEventsRanBy(username) {
+    const result = {};
+
+    pmdb.Iterate("events", (eventId, eventData) => {
+        if (eventData.StartedBy !== username) { return; }
+        result[eventId] = summariseEventDetails(eventData);
+    });
+
+    return result;
+}
+
+function findEventsAttendedBy(username) {
+    const result = {};
+
+    pmdb.Iterate("events", (eventId, eventData) => {
+        if (!utils.Contains(eventData.PeopleGoing, username)) { return; }
+        result[eventId] = summariseEventDetails(eventData);
+    });
+
+    return result;
+}
+
+function getMyEventsEndpoint(request, response) {
+    const sessionId = validators.ValidateSessionParameter(request, response);
+    if (sessionId === undefined) { return; }
+
+    const username = session.GetUsernameFromToken(sessionId);
+
+    response.status(200);
+    response.json({
+        Running: findEventsRanBy(username),
+        GoingTo: findEventsAttendedBy(username)
+    });
+}
+endpoints.GET['/myevents'] = getMyEventsEndpoint;
+
+
+function ListenOnRoutes(app) {
+    Object.keys(endpoints.POST)
+        .forEach(endpoint => app.post(endpoint, endpoints.POST[endpoint]));
+
+    Object.keys(endpoints.GET)
+        .forEach(endpoint => app.get(endpoint, endpoints.GET[endpoint]));
+}
+exports.ListenOnRoutes = ListenOnRoutes;

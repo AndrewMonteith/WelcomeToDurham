@@ -24,11 +24,15 @@ exports.Find = Find;
 
 function Set(name, key, value) {
     openDbs[name][key] = value;
+
+    Write(name);
 }
 exports.Set = Set;
 
 function Update(name, key, callback) {
      openDbs[name][key] = callback(Find(name, key));
+
+     Write(name);
 }
 exports.Update = Update;
 
