@@ -1,5 +1,5 @@
 import { SetSessionCookie, ClearSessionCookie, GetSessionCookie, HasSessionCookie } from "./session.js";
-import { IsWhitespaceOrEmpty, CreateErrorDialog } from "./utils.js";
+import { IsWhitespaceOrEmpty, CreateErrorDialog, RedirectTo } from "./utils.js";
 
 // ------------------------------ Error Dialog 
 function bindInputInvalidityVisuals(input, errorMsg) {
@@ -31,12 +31,11 @@ $('.modal-username').each((_, input) => watchUsernameInput($(input)));
 
 const navbarLoginButton = $("#navbar-login"), navbarRegisterButton = $("#navbar-register");
 
-const redirectTo = url => () => window.location.replace(url);
 const createNavbarButton = (newId, newText, href) => {
     const navbarButton = navbarLoginButton.clone();
 
     if (href !== undefined) {
-        navbarButton.click(redirectTo(href));
+        navbarButton.click(RedirectTo(href));
     }
     navbarButton.attr("id", newId);
     navbarButton.children().removeAttr("data-toggle", "data-target");

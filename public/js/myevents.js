@@ -1,5 +1,5 @@
 import { GetSessionCookie } from './session.js';
-import { NewTimer } from './utils.js';
+import { NewTimer, RedirectTo } from './utils.js';
 
 const createEventNode = event =>
     $(`<li class="event-node">
@@ -9,9 +9,6 @@ const createEventNode = event =>
         <br>
         <span class="event-description"></span>
     </li>`);
-
-const redirectTo = url => 
-    () => window.location.replace(url);
 
 const fillEventDescription = (eventId, descNode) => {
     const fillNode = data => descNode.text(`Description: ${data.Message}`); 
@@ -53,7 +50,7 @@ function loadIntoList(listNode, eventList) {
         const eventMetdata = eventList[eventId];
         const eventNode = createEventNode(eventMetdata);
 
-        eventNode.click(redirectTo(`/view-event?event=${eventId}`));
+        eventNode.click(RedirectTo(`/view-event?event=${eventId}`));
         listenForHover(eventId, eventNode);
 
         listNode.append(eventNode);

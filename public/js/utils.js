@@ -1,4 +1,4 @@
-export { IsWhitespaceOrEmpty , CreateErrorDialog, NewTimer };
+export { IsWhitespaceOrEmpty , CreateErrorDialog, NewTimer, RedirectTo };
 
 function IsWhitespaceOrEmpty(s) {
     return s.trim() === "";
@@ -29,4 +29,8 @@ function NewTimer(timeout, callback) {
         start: startTimer,
         stop: stopTimer,
     };
+}
+
+function RedirectTo(url) {
+    return () => window.location.replace(url);
 }
