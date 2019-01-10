@@ -189,13 +189,12 @@ function registerRequestSucceeded(response) {
 }
 
 function makeRegisterRequest() {
-    console.log("make register request");
     const formDetails = getInputValues(
         "register-firstname", "register-secondname", "register-username", 
         "register-password", "register-confirm-password");
     
     if (formDetails === undefined) { return; }
-    console.log("yee");
+    
     $.post("http://localhost:8081/register",
         {
             username: formDetails["register-username"],

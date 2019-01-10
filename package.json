@@ -4,7 +4,7 @@
   "description": "Web Programming Assignment",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -21,7 +21,9 @@
     "crypto": "^1.0.1",
     "express": "^4.16.4",
     "express-fileupload": "^1.1.1-alpha.1",
+    "jest": "^23.6.0",
     "lockfile": "^1.0.4",
+    "supertest": "^3.3.0",
     "uniqid": "^5.0.3",
     "uniquid": "^1.1.4",
     "xss": "^1.0.3"

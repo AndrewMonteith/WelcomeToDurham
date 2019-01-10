@@ -10,17 +10,17 @@ const session = require("./sessions");
 pmdb.Open("users");
 
 const endpoints = {
-    POST:{},
-    GET:{}
+    POST: {},
+    GET: {}
 };
 
 function hashPassword(password, salt) {
-    return crypto.createHash("sha512").update(password+salt).digest("hex");
+    return crypto.createHash("sha512").update(password + salt).digest("hex");
 }
 
 function passwordIsCorrect(username, password) {
     if (!pmdb.Exists("users", username)) { return; }
-    
+
     const passwordDict = pmdb.Find("users", username).password;
     const inputPasswordHash = hashPassword(password, passwordDict.salt);
 
@@ -41,7 +41,7 @@ function loginUser(response, username) {
 
 function loginUserEndpoint(request, response) {
     const requestParameters = validators.ValidateRequestParameters(
-        request, response, {username: 'string', password: 'string'});
+        request, response, { username: 'string', password: 'string' });
     if (requestParameters === undefined) { return; }
 
     if (passwordIsCorrect(requestParameters.username, requestParameters.password)) {
@@ -73,7 +73,7 @@ function isValidUsername(username) {
 }
 
 function isValidPassword(password) {
-    const passwordLongEnough = !utils.IsWhitespaceOrEmpty(password) && 
+    const passwordLongEnough = !utils.IsWhitespaceOrEmpty(password) &&
         (password.length >= 8);
 
     if (!passwordLongEnough) {
@@ -96,8 +96,8 @@ function registerUser(firstname, surname, username, password) {
 }
 
 function registerUserEndpoint(request, response) {
-    const parameters = validators.ValidateRequestParameters(request, response, 
-        {username: 'string', password: 'string', firstname: 'string', surname: 'string'});
+    const parameters = validators.ValidateRequestParameters(request, response,
+        { username: 'string', password: 'string', firstname: 'string', surname: 'string' });
     if (parameters === undefined) { return; }
 
     if (!isValidUsername(parameters.username)) {
@@ -110,7 +110,7 @@ function registerUserEndpoint(request, response) {
         return;
     }
 
-    registerUser(parameters.firstname, parameters.secondname,
+    registerUser(parameters.firstname, parameters.surname,
         parameters.username, parameters.password);
     loginUser(response, parameters.username);
 
@@ -135,11 +135,72 @@ function checkSessionCookieEndpoint(request, response) {
 endpoints.GET['/amILoggedIn'] = checkSessionCookieEndpoint;
 
 
+// -------------- Endpoints required for automatic tests
+function summariseUser(username, user) {
+    return {
+        username: username, forename: user.firstname, surname: user.surname
+    };
+}
+
+function getResponseForEveryone() {
+    const result = []
+
+    pmdb.Iterate("users", (username, user) =>
+        result.push(summariseUser(username, user)));
+
+    return result;
+}
+
+function getSpecificPerson(username) {
+    return summariseUser(username, pmdb.Find("users", username));
+}
+
+function getListOfPeopleEndpoint(request, response) {
+    const person = validators.GetStringParameter(request, "person");
+
+    const result = person === undefined ? 
+        getResponseForEveryone() : getSpecificPerson(person);
+    
+    response.status(200);
+    response.json(result);
+}
+
+function addBradleyUserEndpoint(request, response) {
+    if (validators.GetStringParameter(request, "access_token") !== "concertina") {
+        response.status(403);
+        response.json({ Message: "unauthorised request" });
+        return;
+    }
+
+    const parameters = validators.ValidateRequestParameters(request, response,
+        { username: "string", forename: "string", surname: "string" });
+
+    if (parameters === undefined) { return; }
+
+    if (pmdb.Find("users", parameters.username)) {
+        response.status(400);
+        response.json({ Message: "cannot have duplicate user" });
+        return;
+    }
+
+    registerUser(parameters.forename, parameters.surname,
+        parameters.username, "Password123!");
+}
+
 function ListenOnRoutes(app) {
     Object.keys(endpoints.POST)
         .forEach(endpoint => app.post(endpoint, endpoints.POST[endpoint]));
 
     Object.keys(endpoints.GET)
         .forEach(endpoint => app.get(endpoint, endpoints.GET[endpoint]));
+
+    // To pass the tests.
+    app.route("/people")
+        .get(getListOfPeopleEndpoint)
+        .post(addBradleyUserEndpoint);
+
+    app.route("/people/:person")
+        .get(getListOfPeopleEndpoint)
+        .post(addBradleyUserEndpoint);
 }
 exports.ListenOnRoutes = ListenOnRoutes;

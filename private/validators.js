@@ -3,7 +3,8 @@ const pmdb = require("./pmdb/pmdb");
 const session = require("./sessions");
 
 function getParameterFromRequest(request, parameter) {
-    return (request.query[parameter] || request.body[parameter]);
+    return (request.query[parameter] || request.body[parameter] || 
+        request.params[parameter] || request.headers[parameter]);
 }
 
 function isStringParameterPresent(request, param) {
