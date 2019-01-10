@@ -1,34 +1,7 @@
 import { SetSessionCookie, ClearSessionCookie, GetSessionCookie, HasSessionCookie } from "./session.js";
 import { IsWhitespaceOrEmpty, CreateErrorDialog, RedirectTo } from "./utils.js";
 
-// ------------------------------ Error Dialog 
-function bindInputInvalidityVisuals(input, errorMsg) {
-    const showErrorDialog = CreateErrorDialog(input, errorMsg);
-
-    return isInvalid => {
-        showErrorDialog(isInvalid);
-        if (isInvalid) {
-            input.addClass("is-invalid");
-        } else {
-            input.removeClass("is-invalid");
-        }
-    };
-}
-
-function watchUsernameInput(input) {
-    const makeInputAppearInvalid = bindInputInvalidityVisuals(input, "Username cannot be empty");
-    let onValueChanged = () => {
-        const isEmpty = IsWhitespaceOrEmpty(input.val());
-
-        makeInputAppearInvalid(isEmpty);
-    };
-
-    input.blur(onValueChanged);
-}
-$('.modal-username').each((_, input) => watchUsernameInput($(input)));
-
-// ---------------------- Navbar Button Changing
-
+// ------------------------ Navbar Button
 const navbarLoginButton = $("#navbar-login"), navbarRegisterButton = $("#navbar-register");
 
 const createNavbarButton = (newId, newText, href) => {
@@ -64,194 +37,177 @@ function changeNavbarButtons(isLoggedIn) {
     }
 }
 
-// ----------------------- Register Dialog Handler
-const registerFirstnameInput = $("#register-firstname");
-const registerSecondnameInput = $("#register-secondname");
-const registerUsernameInput = $("#register-username");
-const registerPasswordInput = $("#register-password");
-const registerConfirmPasswordInput = $("#register-confirm-password");
-
-const nameIsEmptyDialog = CreateErrorDialog($("#names-container"),
-    "Names cannot be empty!");
-const usernameIsInvalidDialog = CreateErrorDialog(registerUsernameInput,
-    "Username must be only letters, numbers and underscores. Must be longer than 3 letters.");
-const usernameTakenDialog = CreateErrorDialog(registerUsernameInput,
-    "Username already taken");
-const passwordNotValidDialog = CreateErrorDialog(registerPasswordInput,
-    "Password must contain a capital letter, number and punctuation and be at least 8 characters");
-const passwordNotMatching = CreateErrorDialog(registerConfirmPasswordInput,
-    "Passwords must be the same");
-
-let isUsernameTaken = false; 
+// ------------------------------------------- Dialog Validation
 
 function isValidUsername(username) {
-    if (IsWhitespaceOrEmpty(username)) {
-        return false;
-    }
-
-    if (username.match(/[^a-zA-Z0-9_]/) !== null) {
-        return false;
-    }
-
-    if (username.length < 3) {
-        return false;
-    }
-
-    return true;
+    return !IsWhitespaceOrEmpty(username) &&
+        !username.match(/[^a-zA-Z0-9_]/) &&
+        username.length >= 3;
 }
-
-function checkInputUsernameIsntTaken() {
-    const inputUsername = registerUsernameInput.val();
-
-    $.get(
-        "http://localhost:8081/usernameExists/",
-        {username: inputUsername},
-        response => {
-            isUsernameTaken = response.Message;
-            usernameTakenDialog(isUsernameTaken);
-        });
-}
-
-function usernameInputValueChanged() {
-    const username = registerUsernameInput.val();
-    
-    usernameTakenDialog(false); 
-    
-    if (IsWhitespaceOrEmpty(username)) {
-        usernameIsInvalidDialog(false);
-        return;
-    }
-
-    const isValid = isValidUsername(username);
-    usernameIsInvalidDialog(!isValid);
-}
-registerUsernameInput.on('input propertychange paste', usernameInputValueChanged);
-registerUsernameInput.focusout(checkInputUsernameIsntTaken);
 
 function isValidPassword(password) {
     /*
-        - Must contain at least 1:
-            - Capital Letter
-            - Number
-            - Punctuation
-        - Be at least 8 letters long.
+    - Must contain at least 1:
+        - Capital Letter
+        - Number
+        - Punctuation
+    - Be at least 8 letters long.
     */
-    if (IsWhitespaceOrEmpty(password)) {
-        return false;
-    }
-
-    if (password.length < 8) {
-        return false;
-    }
-
     const uppercase = /[A-Z]/, lowercase = /[a-z]/, punctuation = /[^a-zA-Z0-9]/;
-    return password.match(uppercase) && password.match(lowercase) && password.match(punctuation);
+    
+    return !IsWhitespaceOrEmpty(password) && 
+        password.length >= 8 && 
+        password.match(uppercase) && password.match(lowercase) && password.match(punctuation);
 }
 
-function doInputPasswordsMatch() {
-    return registerConfirmPasswordInput.val() === registerPasswordInput.val();
+function changeInputValidityVisuals(input, valid) {
+    if (valid) {
+        input.removeClass("is-invalid");
+    } else {
+        input.addClass("is-invalid");
+    }
 }
 
-function updateConfirmPasswordInput(isPasswordValid) {
-    if (!isPasswordValid) {
-        passwordNotMatching(false); 
-        return;
-    }
+const inputsAreValid = {};
+function bindValidatorForInputDialog(id, invalidMsg, validityCallback, eventtype="change") {
+    const inputNode = $('#' + id);
+    const errorDialog = CreateErrorDialog(inputNode, invalidMsg);
 
-    const matching = doInputPasswordsMatch();
-    passwordNotMatching(!matching);
+    const updateState = isInputValid => {
+        changeInputValidityVisuals(inputNode, isInputValid);
+        inputsAreValid[id] = isInputValid;
+        errorDialog(!isInputValid);
+    };
+
+    inputNode.focusout(() => validityCallback(inputNode.val(), updateState));
+
+    if (eventtype==="change") {
+        const onChangeCallback = () => {
+            const value = inputNode.val();
+            if (IsWhitespaceOrEmpty(value)) {
+                updateState(false);
+            } else {
+                validityCallback(value, updateState);
+            }
+        };
+
+        inputNode.on('input propertychange paste', onChangeCallback);
+    } 
+    if (!IsWhitespaceOrEmpty(inputNode.val())) {
+        validityCallback(inputNode.val(), updateState) 
+    }
 }
 
-function passwordInputChanged() {
-    const passwordInput = registerPasswordInput.val();
-    if (IsWhitespaceOrEmpty(passwordInput)) {
-        passwordNotValidDialog(true);
-        return;
+function getInputValues(...ids) {
+    const values = {};
+
+    for (const id of ids) {
+        console.log(id);
+        if (!inputsAreValid[id]) { return undefined; }
+
+        values[id] = $("#" + id).val();
     }
 
-    const isPasswordValid = isValidPassword(passwordInput);
-    passwordNotValidDialog(!isPasswordValid);
-    updateConfirmPasswordInput(isPasswordValid);
+    return values;
 }
 
-registerPasswordInput.on('input propertychange paste', passwordInputChanged);
-registerConfirmPasswordInput.on('input propertychange paste', passwordInputChanged);
+const makeSureNotEmpty = (value, isInputValid) => isInputValid(!IsWhitespaceOrEmpty(value));
 
-function namesHaveBeenEntered() {
-    const inputValid = !(IsWhitespaceOrEmpty(registerFirstnameInput.val()) || 
-            IsWhitespaceOrEmpty(registerSecondnameInput.val()));
+bindValidatorForInputDialog("register-firstname", "Cannot be empty", makeSureNotEmpty);
+bindValidatorForInputDialog("register-secondname", "Cannot be empty", makeSureNotEmpty);
 
-    nameIsEmptyDialog(!inputValid);
+bindValidatorForInputDialog("register-password", "Password must be greater than 8 characters and at least 1: Capital letter, Lowercase letter and Puncation.", 
+    (password, isInputValid) => isInputValid(isValidPassword(password)));
+bindValidatorForInputDialog("register-confirm-password", "Passwords must match", (confirmPassword, isInputValid) => {
+    const password = $("#register-password").val();
 
-    return inputValid;
+    if (IsWhitespaceOrEmpty(password)) {
+        isInputValid(true); // Silence whilst they're inputting first password.
+    } else {
+        isInputValid(password === confirmPassword);
+    }
+});
+
+function checkUsernameValidity(username, isInputValid) {
+    if (IsWhitespaceOrEmpty(username) || !isValidUsername(username)) {
+        isInputValid(false);
+    } else {
+        $.get("http://localhost:8081/usernameExists/",
+            { username: username },
+            response => isInputValid(!response.Message));
+    }
 }
 
-function sendRegisterRequest() {
-    if (!namesHaveBeenEntered()) {
-        return;
-    }
-    const firstname = registerFirstnameInput.val();
-    const surname = registerSecondnameInput.val();
+bindValidatorForInputDialog("register-username", "Username must be unique and at least 3 letters", 
+    checkUsernameValidity, "focuslost");
 
-    const username = registerUsernameInput.val();
-    if (!isValidUsername(username)) {
-        return;
-    }
+bindValidatorForInputDialog("login-username", "Username cannot be empty", makeSureNotEmpty);
+bindValidatorForInputDialog("login-password", "Password cannot be empty", makeSureNotEmpty);
 
-    const password = registerPasswordInput.val();
-    if (!isValidPassword(password)) {
-        return;
-    }
-
-    if (!doInputPasswordsMatch()) {
-        return;
-    }
-
-    $.post("http://localhost:8081/register",
-        {
-            username: username, 
-            password: password,
-            firstname: firstname,
-            surname: surname
-        })
-        .done(data => {
-            $("#close-register-dialog").trigger("click");
-            loginRequestSucceeded(data); // "Register Succeeded."
-        }) ;
-}
-$("#register-dialog-button").click(sendRegisterRequest);
-
-// ----------------------- Login Dialog Handler
-
-const loginRequestErrorDialog = CreateErrorDialog($("#login-button-contanier"),
+// --------------------------- Dialog Buttons
+const loginFailedDialog = CreateErrorDialog($("#login-button-contanier"),
     "Username or password was incorrect");
 
-$("#close-login-dialog").click(() => loginRequestErrorDialog(false));
+function clearInputs(...ids) {
+    for (const id of ids) {
+        $("#" + id).val('');
+    }
+}
 
-function loginRequestSucceeded(data) {
+function loginRequestSucceeded(response) {
     $("#close-login-dialog").trigger("click");
     changeNavbarButtons(true);
-    SetSessionCookie(data.Token);
+    SetSessionCookie(response.Token);
+    clearInputs("login-username", "login-password");
 }
 
-function loginRequestFailed(response) {
-    loginRequestErrorDialog(true);
+function loginRequestFailed() {
+    loginFailedDialog(true);
 }
+$("#close-login-dialog").click(() => loginFailedDialog(false));
 
 function makeLoginRequest() {
-    $.post(
-        "http://localhost:8081/login",
+    const formDetails = getInputValues(
+        "login-username", "login-password");
+    if (formDetails === undefined) { return; }
+
+    $.post("http://localhost:8081/login",
         {
-            username: $("#login-username").val(),
-            password: $("#login-password").val()
+            username: formDetails["login-username"],
+            password: formDetails["login-password"]
         })
         .done(loginRequestSucceeded)
         .fail(loginRequestFailed);
 }
-
 $("#login-button").click(makeLoginRequest);
 
-// -------------------- Logout Button
+function registerRequestSucceeded(response) {
+    $("#close-register-dialog").trigger("click");
+    loginRequestSucceeded(response); 
+    clearInputs("reigster-firstname", "register-secondname",
+        "register-username", "register-password", "register-confirm-password");
+}
+
+function makeRegisterRequest() {
+    console.log("make register request");
+    const formDetails = getInputValues(
+        "register-firstname", "register-secondname", "register-username", 
+        "register-password", "register-confirm-password");
+    
+    if (formDetails === undefined) { return; }
+    console.log("yee");
+    $.post("http://localhost:8081/register",
+        {
+            username: formDetails["register-username"],
+            password: formDetails["register-password"],
+            firstname: formDetails["register-firstname"],
+            surname: formDetails["register-secondname"]
+        })
+        .done(registerRequestSucceeded);
+}
+$("#register-dialog-button").click(makeRegisterRequest);
+
+// ------------------------- Logout Button
 
 function MakeLogoutRequest() {
     const sessionCookie = GetSessionCookie();
@@ -286,7 +242,7 @@ function CheckLogin() {
 
     $.get(
         "http://localhost:8081/amILoggedIn",
-        {Session: sessionCookie},
+        { Session: sessionCookie },
         data => {
             const isLoggedIn = data.Message;
             changeNavbarButtons(isLoggedIn);
