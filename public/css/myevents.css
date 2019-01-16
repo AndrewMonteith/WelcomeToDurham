@@ -28,11 +28,14 @@
   font-size: 26px;
   font-family: 'Poppins'; }
 
-.event-description {
-  margin-top: -20px;
-  font-size: 22px;
-  text-align: center;
-  font-family: 'Poppins'; }
+#pop-up {
+  display: none;
+  position: absolute;
+  width: 280px;
+  padding: 10px;
+  background: #d2d2d2;
+  border-radius: 2px;
+  font-size: 90%; }
 
 @media (max-width: 768px) {
   .event-list-group {

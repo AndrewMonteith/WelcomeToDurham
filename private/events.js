@@ -170,15 +170,20 @@ function getViewEventDetailsEndpoint(request, response) {
 endpoints.GET['/getvieweventstate'] = getViewEventDetailsEndpoint;
 
 
-function getEventDescriptionEndpoint(request, response) {
+function getEventPopupDetailsEndpoint(request, response) {
     const eventId = validators.ValidateEventParameter(request, response);
     if (eventId === undefined) { return; }
 
-    const eventDesc = pmdb.Find("events", eventId).Description;
+    const eventDetails = pmdb.Find("events", eventId);
 
-    utils.SendMessage(response, 200, eventDesc);
+    response.status(200);
+    response.json({
+        Date: eventDetails.Date,
+        NumberGoing: eventDetails.PeopleGoing.length,
+        Description: eventDetails.Description,
+    });
 }
-endpoints.GET['/getdescription'] = getEventDescriptionEndpoint;
+endpoints.GET['/eventsummary'] = getEventPopupDetailsEndpoint;
 
 
 function summariseEventDetails(event) {

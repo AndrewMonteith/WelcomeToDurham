@@ -1,8 +1,8 @@
-export { IsWhitespaceOrEmpty , CreateErrorDialog, NewTimer, RedirectTo };
+export { IsWhitespaceOrEmpty, CreateErrorDialog, RedirectTo };
 
 function IsWhitespaceOrEmpty(s) {
     return s.trim() === "";
-} 
+}
 
 function CreateErrorDialog(input, msg) {
     const errorDialogNode = $("<div />", {
@@ -16,18 +16,6 @@ function CreateErrorDialog(input, msg) {
         } else {
             errorDialogNode.detach();
         }
-    };
-}
-
-function NewTimer(timeout, callback) {
-    let timer;
-
-    const startTimer = () => { timer = setTimeout(callback, timeout); };
-    const stopTimer = () => { clearTimeout(timeout); }
-
-    return {
-        start: startTimer,
-        stop: stopTimer,
     };
 }
 

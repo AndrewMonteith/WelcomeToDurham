@@ -1,48 +1,38 @@
 import { GetSessionCookie } from './session.js';
-import { NewTimer, RedirectTo } from './utils.js';
+import { RedirectTo } from './utils.js';
 
 const createEventNode = event =>
     $(`<li class="event-node">
         <img src="/${event.LogoURL}" height="200px">
         <br>
         ${event.Name} on ${event.Date}
-        <br>
-        <span class="event-description"></span>
-    </li>`);
+    </li>`); //
 
-const fillEventDescription = (eventId, descNode) => {
-    const fillNode = data => descNode.text(`Description: ${data.Message}`); 
+function changePopupVisuals(popup, data) {
+    popup.find("#number-going").text(data.NumberGoing);
+    popup.find("#event-date").text(data.Date);
+    popup.find("#description").text(data.Description);
+}
 
-    $.get("/getdescription",
-        {event: eventId})
-        .done(fillNode)
-        .fail(console.log);
-};
+function bindPopupEvents(eventId, eventNode) {
+    const popup = $("#pop-up");
+    const movePopup = e => popup.css({ top: (e.pageY + 3), left: (e.pageX + 3) });
+    const triggerNode = eventNode.find("img");
 
-function listenForHover(eventId, eventNode) {
-    const setDescriptionVisible = visible => {
-        const descNode = eventNode.find(".event-description");
-        if (visible) {
-            if (descNode.val() === "") {
-                fillEventDescription(eventId, descNode);
-            }
-            
-            descNode.show();
-        } else {
-            descNode.hide();
-        }
-    };
-    const timer = NewTimer(600, () => setDescriptionVisible(true));
-    
-    const hoverIn = () => timer.start();
+    const bindPopupEvents = data => {
+        triggerNode.hover(e => {
+            changePopupVisuals(popup, data);
+            movePopup(e);
+            popup.show().appendTo("body");
+        },
+            () => popup.hide());
 
-    const hoverOut = () => {
-        timer.stop();
-        setDescriptionVisible(false);
+        triggerNode.mousemove(movePopup);
     };
 
-    setDescriptionVisible(false);
-    eventNode.hover(hoverIn, hoverOut);
+    $.get("/eventsummary",
+        { event: eventId })
+        .done(bindPopupEvents);
 }
 
 function loadIntoList(listNode, eventList) {
@@ -51,7 +41,7 @@ function loadIntoList(listNode, eventList) {
         const eventNode = createEventNode(eventMetdata);
 
         eventNode.click(RedirectTo(`/view-event?event=${eventId}`));
-        listenForHover(eventId, eventNode);
+        bindPopupEvents(eventId, eventNode);
 
         listNode.append(eventNode);
     });
@@ -62,21 +52,21 @@ function updateEventLists(data) {
     loadIntoList($("#running-list"), data.Running);
 }
 
-const QueryServerAndPopulateLists = () => 
+function loadEventLists() {
     $.get("/myevents",
         { Session: GetSessionCookie() })
-        .done(updateEventLists)
-        .fail(console.log);
+        .done(updateEventLists);
+}
 
-function ClearLists() {
+function clearLists() {
     $("#going-to-list").empty();
     $("#running-list").empty();
 }
 
-function UpdateState() {
-    ClearLists();
-    QueryServerAndPopulateLists();
+function updateState() {
+    clearLists();
+    loadEventLists();
 }
 
-window.setInterval(UpdateState, 30 * 1000);
-UpdateState();
+window.setInterval(updateState, 30 * 1000);
+updateState();
