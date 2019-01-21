@@ -11,15 +11,17 @@ const createEventNode = event =>
 
 
 function loadIntoList(listNode, eventList) {
-    Object.keys(eventList).forEach(eventId => {
-        const eventMetdata = eventList[eventId];
-        const eventNode = createEventNode(eventMetdata);
+    Object.keys(eventList)
+        .sort()
+        .forEach(eventId => {
+            const eventMetdata = eventList[eventId];
+            const eventNode = createEventNode(eventMetdata);
 
-        eventNode.click(RedirectTo(`/view-event?event=${eventId}`));
-        BindEventSummaryPopup(eventId, eventNode);
+            eventNode.click(RedirectTo(`/view-event?event=${eventId}`));
+            BindEventSummaryPopup(eventId, eventNode);
 
-        listNode.append(eventNode);
-    });
+            listNode.append(eventNode);
+        });
 }
 
 function updateEventLists(data) {

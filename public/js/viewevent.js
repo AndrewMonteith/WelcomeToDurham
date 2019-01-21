@@ -1,19 +1,18 @@
 import { GetSessionCookie, OnSessionCookieChanged } from './session.js';
 
-const eventId = window.location.search
-    .match(/\?event=(.+)/)[1];
+const eventId = window.location.search.
+    match(/\?event=(.+)/)[1];
 
 const isLoggedIn = () => GetSessionCookie() !== "";
 
 function checkboxStateChanged() {
     $.post("/eventregister",
         {
-            event:eventId,
-            Session:GetSessionCookie(),
-            going:this.checked
+            event: eventId,
+            Session: GetSessionCookie(),
+            going: this.checked
         })
-        .done(updatePageState)
-        .fail(console.log);
+        .done(updatePageState);
 }
 $("#going-checkbox").change(checkboxStateChanged);
 
@@ -35,38 +34,44 @@ function postComment() {
 }
 $("#submit-button").click(postComment);
 
-function PopulatePeopleList(peopleGoing) {
+function populatePeopleList(peopleGoing) {
     const personList = $("#people-list");
     const createPersonNode = name => $(`<p>${name}</p>`);
 
     $("#people-list").empty();
-    for (const person of peopleGoing) {
-        personList.append(createPersonNode(person));
+    if (peopleGoing.length > 0) {
+        for (const person of peopleGoing) {
+            personList.append(createPersonNode(person));
+        }
+    } else {
+        personList.append($(`<em><b>Be the first to go!</b></em>`));
     }
 }
 
-function addComment(comment) {
-    const commentNode = (`<div class="comment-group">
+function createCommentNode(comment) {
+    return $(`<div class="comment-group">
         <p class="comment">${comment.comment}</p>
         <p class="commenter">${comment.commenter}</p>
-    </div>`);
-
-    $("#comment-list").append(commentNode);
+    </div>`)
 }
 
-function PopulateCommentList(comments) {
+
+function populateCommentList(comments) {
     const commentList = $("#comment-list");
     const numberOfComments = commentList.children().length;
-    if (numberOfComments == comments.length) {
-        return;
-    }
 
-    for (let i = numberOfComments; i < comments.length; i++) {
-        addComment(comments[i]);
+    if (numberOfComments === 0) {
+        commentList.append($(`<b>No comments yet!</b>`))
+    } else if (numberOfComments === comments.length) {
+        return;
+    } else {
+        for (let i = numberOfComments; i < comments.length; i++) {
+            commentList.append(createCommentNode(comments[i]));
+        }
     }
 }
 
-function UpdateLoggedInPanel(data) {
+function updateLoggedInPanel(data) {
     const numberGoing = data.PeopleGoing.length;
     const userGoing = data.IsGoing;
 
@@ -74,10 +79,10 @@ function UpdateLoggedInPanel(data) {
     $("#number-going").text(numberGoing);
 }
 
-function ChangeVisualsOfLoggedInPanel(loggedIn) {
+function changeVisualsOfLoggedInPanel(loggedIn) {
     const descriptionPanel = $("#description-panel"),
         goingPanel = $("#going-panel"),
-        commentInput = $("#comment-group");  
+        commentInput = $("#comment-group");
 
     if (loggedIn) {
         commentInput.show();
@@ -93,19 +98,19 @@ function ChangeVisualsOfLoggedInPanel(loggedIn) {
 }
 
 function updatePage(data) {
-    ChangeVisualsOfLoggedInPanel(isLoggedIn());
+    changeVisualsOfLoggedInPanel(isLoggedIn());
 
-    PopulatePeopleList(data.PeopleGoing);
-    PopulateCommentList(data.Comments);
+    populatePeopleList(data.PeopleGoing);
+    populateCommentList(data.Comments);
 
     if (isLoggedIn()) {
-        UpdateLoggedInPanel(data);
+        updateLoggedInPanel(data);
     }
 }
 
 function updatePageState() {
     $.get("/getvieweventstate",
-        {event:eventId, Session: GetSessionCookie()},
+        { event: eventId, Session: GetSessionCookie() },
         updatePage);
 }
 
@@ -116,6 +121,6 @@ OnSessionCookieChanged("viewevent", () => {
     if (isLoggedIn) {
         updatePageState();
     } else {
-        ChangeVisualsOfLoggedInPanel(false);
+        changeVisualsOfLoggedInPanel(false);
     }
 });

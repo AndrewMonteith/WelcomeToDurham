@@ -109,10 +109,15 @@ function replaceAll(str, replacements) {
     return str.replace(re, match => replacements[match]);
 }
 
+function turnNewlinesIntoLinebreaks(description) {
+    return description.replace("\n", "<br />")
+}
+
 function renderEventWebpage(stringWebapge, eventMetadata) {
+    const htmlPreparedDescription = turnNewlinesIntoLinebreaks(eventMetadata.Description);
     return replaceAll(stringWebapge, {
         "{Event Title}": eventMetadata.Name,
-        "{Event Description}": eventMetadata.Description,
+        "{Event Description}": turnNewlinesIntoLinebreaks(htmlPreparedDescription),
         "{Number Going}": eventMetadata.PeopleGoing.length,
         "{Event Image}": eventMetadata.LogoURL
     });

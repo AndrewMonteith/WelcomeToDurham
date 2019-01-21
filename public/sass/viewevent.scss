@@ -82,9 +82,11 @@ p, label {
     height: 300px;
 }    
 
-#event-description {
-    font-size: 20px;
-}    
+@media (max-width: 1000px) {
+    p, label {
+        font-size: 15px;
+    }
+}
 
 @media ( max-width: 768px ) {
     #event-logo {
