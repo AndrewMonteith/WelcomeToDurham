@@ -1,3 +1,5 @@
+import { BindPopupEvents as BindEventSummaryPopup } from './eventpopup.js';
+
 const eventItemTemplate = $(
     `<div class="event d-flex">
         <p class="event-title"></p>
@@ -34,6 +36,7 @@ function addNewEvents(newEventList) {
         const eventItem = createNewEventListItem(eventId, details);
 
         eventItem.click(() => window.location.replace("/view-event?event=" + eventId));
+        BindEventSummaryPopup(eventId, eventItem);
 
         $("#event-list").append(eventItem);
         eventsInList[eventId] = details;

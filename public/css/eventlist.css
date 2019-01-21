@@ -29,6 +29,15 @@
   margin-top: -30px;
   height: 200px; }
 
+#pop-up {
+  display: none;
+  position: absolute;
+  width: 280px;
+  padding: 10px;
+  background: #d2d2d2;
+  border-radius: 2px;
+  font-size: 90%; }
+
 @media (max-width: 992px) {
   #event-list {
     display: inline-block !important;

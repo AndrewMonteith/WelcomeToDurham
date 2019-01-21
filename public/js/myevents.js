@@ -1,5 +1,6 @@
 import { GetSessionCookie } from './session.js';
 import { RedirectTo } from './utils.js';
+import { BindPopupEvents as BindEventSummaryPopup } from './eventpopup.js';
 
 const createEventNode = event =>
     $(`<li class="event-node">
@@ -8,32 +9,6 @@ const createEventNode = event =>
         ${event.Name} on ${event.Date}
     </li>`); //
 
-function changePopupVisuals(popup, data) {
-    popup.find("#number-going").text(data.NumberGoing);
-    popup.find("#event-date").text(data.Date);
-    popup.find("#description").text(data.Description);
-}
-
-function bindPopupEvents(eventId, eventNode) {
-    const popup = $("#pop-up");
-    const movePopup = e => popup.css({ top: (e.pageY + 3), left: (e.pageX + 3) });
-    const triggerNode = eventNode.find("img");
-
-    const bindPopupEvents = data => {
-        triggerNode.hover(e => {
-            changePopupVisuals(popup, data);
-            movePopup(e);
-            popup.show().appendTo("body");
-        },
-            () => popup.hide());
-
-        triggerNode.mousemove(movePopup);
-    };
-
-    $.get("/eventsummary",
-        { event: eventId })
-        .done(bindPopupEvents);
-}
 
 function loadIntoList(listNode, eventList) {
     Object.keys(eventList).forEach(eventId => {
@@ -41,7 +16,7 @@ function loadIntoList(listNode, eventList) {
         const eventNode = createEventNode(eventMetdata);
 
         eventNode.click(RedirectTo(`/view-event?event=${eventId}`));
-        bindPopupEvents(eventId, eventNode);
+        BindEventSummaryPopup(eventId, eventNode);
 
         listNode.append(eventNode);
     });
