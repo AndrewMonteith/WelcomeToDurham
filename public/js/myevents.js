@@ -12,7 +12,6 @@ const createEventNode = event =>
 
 function loadIntoList(listNode, eventList) {
     Object.keys(eventList)
-        .sort()
         .forEach(eventId => {
             const eventMetdata = eventList[eventId];
             const eventNode = createEventNode(eventMetdata);

@@ -16,6 +16,19 @@ function checkboxStateChanged() {
 }
 $("#going-checkbox").change(checkboxStateChanged);
 
+function addComment(comment) {
+    const commentList = $("#comment-list");
+
+    if ($("#no-comment").length > 0) {
+        commentList.empty();
+    }
+
+    commentList.append(`<div class="comment-group">
+        <p class="comment">${comment.comment}</p>
+        <p class="commenter">${comment.commenter}</p>
+    </div>`);
+}
+
 function postComment() {
     const addCommentToWebpage = comment => {
         addComment(comment);
@@ -48,25 +61,18 @@ function populatePeopleList(peopleGoing) {
     }
 }
 
-function createCommentNode(comment) {
-    return $(`<div class="comment-group">
-        <p class="comment">${comment.comment}</p>
-        <p class="commenter">${comment.commenter}</p>
-    </div>`)
-}
-
 
 function populateCommentList(comments) {
     const commentList = $("#comment-list");
     const numberOfComments = commentList.children().length;
 
-    if (numberOfComments === 0) {
-        commentList.append($(`<b>No comments yet!</b>`))
+    if (comments.length === 0 && numberOfComments === 0) {
+        commentList.append(`<b id="no-comment">No comments yet!</b>`)
     } else if (numberOfComments === comments.length) {
         return;
     } else {
         for (let i = numberOfComments; i < comments.length; i++) {
-            commentList.append(createCommentNode(comments[i]));
+            addComment(comments[i]);
         }
     }
 }
@@ -115,7 +121,7 @@ function updatePageState() {
 }
 
 updatePageState();
-window.setInterval(updatePageState, 30 * 1000);
+window.setInterval(updatePageState, 3 * 1000);
 
 OnSessionCookieChanged("viewevent", () => {
     if (isLoggedIn) {
